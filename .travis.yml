@@ -1,0 +1,20 @@
+language: python
+python:
+  - "2.7"
+  - "3.2"
+  - "3.3"
+# command to install dependencies
+install:
+    - "pip install -r requirements.txt --use-mirrors"
+    - "pip install -r dev-requirements.txt --use-mirrors"
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install coverage coveralls; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install restructuredtext_lint Pygments; fi
+# command to run tests
+script:
+    - export COVERALLS_REPO_TOKEN=yLY1tSVWvDwWE9e8lzLmqilpCmzZi2J8i
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then nosetests --with-coverage --cover-package=lawvere; fi
+    - if [[ $TRAVIS_PYTHON_VERSION != '2.7' ]]; then nosetests; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then rst-lint README.rst; fi
+
+after_success:
+    - coveralls
