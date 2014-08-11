@@ -10,7 +10,7 @@ signature_factory = type('SignatureFactory', (dict, ), {'__call__': call})()
 
 def use_signature(sig):
     def set_signature(cls):
-        signature_factory[type(cls).__name__] = sig
+        signature_factory[cls.__name__] = sig
         return cls
     return set_signature
 

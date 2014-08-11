@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+def tupleize(item):
+    return item if isinstance(item, tuple) else (item, )
+
 def compose_with(stack_cls):
     def composable(cls):
         if not callable(cls): raise TypeError("Composables must be callable")
@@ -9,15 +12,12 @@ def compose_with(stack_cls):
         if is_composable(cls):
             return cls
 
-        def circle(self, other):
-            if not isinstance(other, tuple):
-                return self.__composable__((self, other))
-            return self.__composable__((self, ) + other)
-
         def pipe(self, other):
-            if not isinstance(other, tuple):
-                return self.__composable__((other, self))
-            return self.__composable__(other + (self, ))
+            return self.__composable__(tupleize(self) + tupleize(other))
+
+        def circle(self, other):
+            return pipe(other, self)
+
         prop = {
             '__composable__': stack_cls,
             'circle': circle,
@@ -35,26 +35,27 @@ def compose_with_self(cls):
 
 is_composable = lambda func: hasattr(func, '__composable__')
 
+@compose_with_self
 class Stack(tuple):
     def __call__(self, *args, **kwargs):
         index = 0
         result = None
         for func in self:
+            index += 1
             result = func(*args, **kwargs)
             if is_composable(result):
-                return self.__composable__(self.tupleize(result) + self[index+1:])
+                return self.__composable__(tupleize(result) + self[index:])
             args, kwargs = (result, ), {}
-            index += 1
         return result
 
     def replace_at(self, key, item):
-        result = tuple(self)
+        result = list(self)
         result[key] = item
         return self.__composable__(result)
 
     def replace(self, old, items):
-        items = self.tupleize(items)
-        old = self.tupleize(old)
+        items = tupleize(items)
+        old = tupleize(old)
         old_len = len(old)
         stack = tuple()
         start_index = 0
@@ -79,17 +80,14 @@ class Stack(tuple):
     def without(self, items):
         return self.replace(items, tuple())
 
-    def pipe(self, other):
-        return self.__composable__(self + self.tupleize(other))
+    def __getattr__(self, name):
+        if name in self.__dict__:
+            return self.__dict__[name]
+        if len(self) == 1:
+            return getattr(self[0], name)
 
-    def circle(self, other):
-        return self.__composable__(self.tupleize(other) + self)
+        raise AttributeError('%s not set' % name)
 
-    def tupleize(self, item):
-        return item if isinstance(item, tuple) else (item, )
-
-    __rshift__ = pipe
-    __mul__ = circle
 
 setattr(Stack, '__composable__', Stack)
 composable = compose_with(Stack)

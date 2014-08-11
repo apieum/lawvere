@@ -19,7 +19,7 @@ class ComposableTest(TestCase):
         func1 = composable(lambda arg: True)
         func2 = composable(lambda arg: False)
 
-        self.assertEqual(func2 * func1 >> func2, func1 >> func2 >> func2)
+        self.assertEqual(func2 * func2 * func1, func1 >> func2 >> func2)
 
     def test_it_can_compose_callable_object(self):
         @composable
