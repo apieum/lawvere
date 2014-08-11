@@ -48,30 +48,36 @@ class Stack(tuple):
         return result
 
     def replace_at(self, key, item):
-        result = list(self)
+        result = tuple(self)
         result[key] = item
         return self.__composable__(result)
 
-    def replace(self, old, item):
-        replace = lambda func: func == old and item or func
-        return self.__composable__(map(replace, self))
+    def replace(self, old, items):
+        items = self.tupleize(items)
+        old = self.tupleize(old)
+        old_len = len(old)
+        stack = tuple()
+        start_index = 0
+        for found_index in self.iter_find(old):
+            stack += self[start_index:found_index] + items
+            start_index = found_index + old_len
+
+        stack += self[found_index + old_len:]
+        return self.__composable__(stack)
+
+    def iter_find(self, items):
+        items_len = len(items)
+        i = 0
+        while i <= len(self) - items_len:
+            if self[i:i+items_len] == items:
+                yield i
+                i += items_len
+            else:
+                i += 1
+
 
     def without(self, items):
-        return self.__composable__(tuple(self.iter_without(items)))
-
-    def iter_without(self, items):
-        items = self.tupleize(items)
-        i = 0
-        items_len = len(items)
-        self_len = len(self)
-        while i <= self_len - items_len:
-            if self[i:i+items_len] != items:
-                yield self[i]
-                i+=1
-            else:
-                i += items_len
-        for item in self[i:self_len]:
-            yield item
+        return self.replace(items, tuple())
 
     def pipe(self, other):
         return self.__composable__(self + self.tupleize(other))

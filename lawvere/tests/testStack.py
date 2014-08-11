@@ -99,3 +99,20 @@ class ComposableTest(TestCase):
         self.assertEqual(test4.without(test1), test2 >> test3)
 
 
+    def test_it_can_replace_composable_item(self):
+        true = composable(lambda a: a and True)
+        false = composable(lambda a: a and False)
+
+        test1 = true >> false
+        test2 = false >> false
+        test3 = true >> true
+        test4 = test1 >> test2 >> test3
+
+        test5 = test4.replace(false, true)
+        test6 = test4.replace(test2, test3).replace(test1, test3)
+
+        self.assertEqual(test4(True), False)
+        self.assertEqual(test5(True), True)
+        self.assertEqual(test6, test5)
+
+
