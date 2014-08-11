@@ -31,7 +31,9 @@ def compose_with(stack_cls):
 
 
 def compose_with_self(cls):
-    return compose_with(cls)(cls)
+    cls = compose_with(cls)(cls)
+    setattr(cls, '__composable__', cls)
+    return cls
 
 is_composable = lambda func: hasattr(func, '__composable__')
 
@@ -89,5 +91,4 @@ class Stack(tuple):
         raise AttributeError('%s not set' % name)
 
 
-setattr(Stack, '__composable__', Stack)
 composable = compose_with(Stack)
