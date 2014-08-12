@@ -4,7 +4,7 @@ __all__=['Undefined', 'signature_factory', 'use_signature', 'Signature', 'from_f
 
 Undefined = type('Undefined', (object, ), {})
 
-call = lambda self, wrapper, *args, **kwargs: self.get(type(wrapper).__name__, Signature)(*args, **kwargs)
+call = lambda self, wrapper: self.get(type(wrapper).__name__, Signature)
 signature_factory = type('SignatureFactory', (dict, ), {'__call__': call})()
 
 
@@ -16,36 +16,55 @@ def use_signature(sig):
 
 
 def from_func(wrapper, func):
-    argcount = getattr(func.__code__, 'co_argcount', 0)
-    defaults = func.__defaults__ or tuple()
-    arglen = argcount - len(defaults)
-    varnames = getattr(func.__code__, 'co_varnames', tuple())[:argcount]
-
-    parameters = OrderedDict.fromkeys(varnames[:arglen], Undefined)
-    parameters.update(zip(varnames[arglen:], defaults))
-    return signature_factory(wrapper, parameters, arglen)
+    return signature_factory(wrapper).from_func(func)
 
 
 class Signature(OrderedDict):
-    def __init__(self, parameters, argcount=0):
-        OrderedDict.__init__(self, parameters)
-        self.argcount = argcount
+    def __init__(self, args, kwargs):
+        self.argcount = len(args)
+        OrderedDict.__init__(self, args)
+        self.update(kwargs)
+
+    @property
+    def args(self):
+        return self.items()[:self.argcount]
+
+    @property
+    def keywords(self):
+        return self.items()[self.argcount:]
 
     def defined(self):
         return Undefined not in self.values()
 
     def merge(self, *args, **kwargs):
-        binded = type(self)(self, self.argcount)
-        binded.update(kwargs)
-        binded.update(zip(binded.iter_undefined(), args))
-        return binded
+        signature = type(self)(self.args, self.keywords)
+        signature.update(kwargs)
+        signature.update(zip(signature.iter_undefined(), args))
+        return signature
 
     def iter_undefined(self):
-        index = 0
-        for name, value in self.items():
-            if value == Undefined or index >= self.argcount:
+        keys = self.keys()
+        for name in keys[:self.argcount]:
+            if self[name] == Undefined:
                 yield name
-            index+=1
+        for name in keys[self.argcount:]:
+            yield name
+
+    @classmethod
+    def inspect_parameters(cls, func):
+        argcount = getattr(func.__code__, 'co_argcount', 0)
+        defaults = func.__defaults__ or tuple()
+        arglen = argcount - len(defaults)
+        varnames = getattr(func.__code__, 'co_varnames', tuple())[:argcount]
+
+        args = OrderedDict.fromkeys(varnames[:arglen], Undefined)
+        keywords = OrderedDict(zip(varnames[arglen:], defaults))
+        return args, keywords
+
+    @classmethod
+    def from_func(cls, func):
+        return cls(*cls.inspect_parameters(func))
+
 
     def apply(self, func):
         return func(**self)
