@@ -26,23 +26,23 @@ class MorphismSignature(Signature):
         self.__dict__['domain'] = domain
 
 
-    def check_domain(self):
-        if self.argcount != len(self.domain):
+    def assert_domain_valid(self, args, domain):
+        if len(args) != len(domain):
             raise TypeError("Domain not valid")
         index = 0
-        for name, arg in self.args:
-            if not isinstance(arg, self.domain[index]):
+        for name, arg in args:
+            if not isinstance(arg, domain[index]):
                 raise TypeError("Argument %s not in domain" % name)
             index +=1
 
-    def check_codomain(self, result):
-        if not isinstance(result, self.codomain):
+    def assert_codomain_valid(self, result, codomain):
+        if not isinstance(result, codomain):
             raise TypeError("Result not in codomain")
 
     def apply(self, func):
-        self.check_domain()
+        self.assert_domain_valid(self.args, self.domain)
         result = func(**self)
-        self.check_codomain(result)
+        self.assert_codomain_valid(result, self.codomain)
         return result
 
     def __copy__(self):
