@@ -19,7 +19,7 @@ class Curry(object):
 
     def __call__(self, *args, **kwargs):
         sig = self.signature.merge(*args, **kwargs)
-        if sig.defined():
+        if sig.valid():
             return sig.apply(self.func)
 
         return type(self)(self.func, signature=sig)

@@ -21,9 +21,9 @@ class SignatureTest(TestCase):
         def expected(a, b="expected"):
             pass
         sig = from_func(self, expected)
-        self.assertFalse(sig.defined())
+        self.assertFalse(sig.valid())
         sig['a'] = None
-        self.assertTrue(sig.defined())
+        self.assertTrue(sig.valid())
 
 
     def test_merge_returns_Signature_copy(self):

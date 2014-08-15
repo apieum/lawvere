@@ -33,7 +33,7 @@ class Signature(OrderedDict):
     def keywords(self):
         return tuple(self.items())[self.argcount:]
 
-    def defined(self):
+    def valid(self):
         return Undefined not in self.values()
 
     def merge(self, *args, **kwargs):
