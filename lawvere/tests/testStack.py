@@ -12,14 +12,14 @@ class ComposableTest(TestCase):
         def func2(arg):
             pass
 
-        self.assertIsInstance(func2 * func1, Stack)
+        self.assertIsInstance(func2 << func1, Stack)
         self.assertIsInstance(func1 >> func2, Stack)
 
     def test_it_can_compare_composed(self):
         func1 = composable(lambda arg: True)
         func2 = composable(lambda arg: False)
 
-        self.assertEqual(func2 * func2 * func1, func1 >> func2 >> func2)
+        self.assertEqual(func2 << func2 << func1, func1 >> func2 >> func2)
 
     def test_it_can_compose_callable_object(self):
         @composable
@@ -29,7 +29,7 @@ class ComposableTest(TestCase):
         func1 = func()
         func2 = func()
 
-        self.assertEqual(func2 * func1, func1 >> func2)
+        self.assertEqual(func2 << func1, func1 >> func2)
 
     def test_it_calls_functions_with_previous_function_result(self):
         add1 = composable(lambda arg: arg + 1)
@@ -49,7 +49,7 @@ class ComposableTest(TestCase):
         add1 = func()
         add2 = func()
 
-        op = add1 * add2(2)
+        op = add1 << add2(2)
         add5 = op(3)
 
         self.assertEqual(add5(5), 10)
@@ -57,7 +57,7 @@ class ComposableTest(TestCase):
 
     def test_if_result_is_composable_it_returns_partial(self):
         addx = composable(lambda a: composable(lambda b: a + b))
-        op = addx * addx(2)
+        op = addx << addx(2)
         add5 = op(3)
 
         self.assertEqual(add5(5), 10)
@@ -82,7 +82,7 @@ class ComposableTest(TestCase):
         test1 = true >> false
         test2 = false >> false
         test3 = true >> true
-        test4 = test1 * test2 >> test3
+        test4 = test1 << test2 >> test3
         self.assertEqual(test1.without(true_func), false)
         self.assertEqual(test4.without(test1), test2 >> test3)
 

@@ -21,7 +21,7 @@ def compose_with(stack_cls):
         prop = {
             '__composable__': stack_cls,
             'circle': circle,
-            '__mul__': circle,
+            '__lshift__': circle,
             'pipe': pipe,
             '__rshift__': pipe
         }

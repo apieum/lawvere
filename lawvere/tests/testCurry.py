@@ -30,7 +30,7 @@ class CurryTest(TestCase):
         def mul(a, b):
             return a * b
 
-        mul2_of_sub3 = mul(2) * sub(b=3)
+        mul2_of_sub3 = mul(2) << sub(b=3)
         self.assertEqual(4, mul2_of_sub3(5))
 
     def test_it_permits_composition_with_f_before_g(self):
@@ -80,7 +80,7 @@ class CurryTest(TestCase):
         def mul(a, b):
             return a * b
 
-        mul2_of_sub3 = mul(2) * sub(b=3)
+        mul2_of_sub3 = mul(2) << sub(b=3)
         mul2_of_sub2 = mul2_of_sub3.replace_at(0, sub(b=2))
         self.assertEqual(6, mul2_of_sub2(5))
 
@@ -95,7 +95,7 @@ class CurryTest(TestCase):
         def mul(a, b):
             return a * b
 
-        mul2_of_sub3 = mul(2) * sub(b=3)
+        mul2_of_sub3 = mul(2) << sub(b=3)
         mul2_of_sub2 = mul2_of_sub3.replace(sub(b=3), sub(b=2))
         self.assertEqual(6, mul2_of_sub2(5))
 
@@ -133,6 +133,6 @@ class CurryTest(TestCase):
         def mul(a, b):
             return a * b
 
-        curry = sub(b=3) * mul * mul(2)
+        curry = sub(b=3) << mul << mul(2)
         self.assertEqual(curry(3)(2), 9)
 
