@@ -27,23 +27,23 @@ class Signature(OrderedDict):
 
     @property
     def args(self):
-        return self.items()[:self.argcount]
+        return tuple(self.items())[:self.argcount]
 
     @property
     def keywords(self):
-        return self.items()[self.argcount:]
+        return tuple(self.items())[self.argcount:]
 
     def defined(self):
         return Undefined not in self.values()
 
     def merge(self, *args, **kwargs):
-        signature = type(self)(self, kwargs)
-        signature.argcount = self.argcount
+        signature = type(self)(self.args, self.keywords)
+        signature.update(kwargs)
         signature.update(zip(signature.iter_undefined(), args))
         return signature
 
     def iter_undefined(self):
-        keys = self.keys()
+        keys = tuple(self.keys())
         for name in keys[:self.argcount]:
             if self[name] == Undefined:
                 yield name
