@@ -10,7 +10,7 @@ def compose_with(stack_cls):
             return stack_cls((cls, ))
 
         if is_composable(cls):
-            return cls
+            return type(cls.__name__, (cls, ), {'__composable__': stack_cls})
 
         def pipe(self, other):
             return self.__composable__(tupleize(self) + tupleize(other))
@@ -18,14 +18,14 @@ def compose_with(stack_cls):
         def circle(self, other):
             return pipe(other, self)
 
-        prop = {
+        attributes = {
             '__composable__': stack_cls,
             'circle': circle,
             '__lshift__': circle,
             'pipe': pipe,
             '__rshift__': pipe
         }
-        return type(cls.__name__, (cls, ), prop)
+        return type(cls.__name__, (cls, ), attributes)
 
     return composable
 
