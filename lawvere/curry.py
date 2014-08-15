@@ -7,14 +7,18 @@ from .stack import composable
 class Curry(object):
     def __init__(self, func, signature=None):
         self.func = func
-        self.signature = signature
+        self.__dict__['signature'] = signature
+
+    @property
+    def signature(self):
+        return self.__dict__['signature'] or from_func(self, self.func)
 
     @property
     def __name__(self):
         return self.func.__name__
 
     def __call__(self, *args, **kwargs):
-        sig = self.update_signature(*args, **kwargs)
+        sig = self.signature.merge(*args, **kwargs)
         if sig.defined():
             return sig.apply(self.func)
 
@@ -22,7 +26,3 @@ class Curry(object):
 
     def __eq__(self, other):
         return self.func == other.func and self.signature == other.signature
-
-    def update_signature(self, *args, **kwargs):
-        signature = self.signature or from_func(self, self.func)
-        return signature.merge(*args, **kwargs)
