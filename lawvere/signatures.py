@@ -37,7 +37,7 @@ class Signature(OrderedDict):
         return Undefined not in self.values()
 
     def merge(self, *args, **kwargs):
-        signature = type(self)(self.args, self.keywords)
+        signature = self.__copy__()
         signature.update(kwargs)
         signature.update(zip(signature.iter_undefined(), args))
         return signature
@@ -68,3 +68,6 @@ class Signature(OrderedDict):
 
     def apply(self, func):
         return func(**self)
+
+    def __copy__(self):
+        return type(self)(self.args, self.keywords)
