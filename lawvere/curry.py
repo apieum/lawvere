@@ -6,7 +6,6 @@ from .stack import composable
 @composable
 class Curry(object):
     def __init__(self, func, signature=None):
-        self._assert_signed(func)
         self.func = func
         self.signature = signature
 
@@ -27,11 +26,3 @@ class Curry(object):
     def update_signature(self, *args, **kwargs):
         signature = self.signature or from_func(self, self.func)
         return signature.merge(*args, **kwargs)
-
-    @classmethod
-    def _assert_signed(cls, func):
-        if not hasattr(func, "__code__"):
-            name = getattr(func, '__name__', 'unnammed')
-            raise TypeError("Can't read function %s signature" % name)
-
-

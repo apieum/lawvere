@@ -96,7 +96,7 @@ class ComposableTest(TestCase):
         test3 = true >> true
         test4 = test1 >> test2 >> test3
         self.assertEqual(test1.without(true_func), false)
-        self.assertEqual(test4.without(test1), test2 >> test3)
+        self.assertEqual(test4.without(test2), test1 >> test3)
 
 
     def test_it_can_replace_composable_item(self):

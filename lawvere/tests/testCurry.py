@@ -4,10 +4,6 @@ from lawvere.curry import Curry
 
 
 class CurryTest(TestCase):
-    def test_it_doesnt_support_builtins_functions(self):
-        with self.assertRaises(TypeError):
-            curry = Curry(next)
-
     def test_it_has_given_userdefined_func_name(self):
         def expected(a, b):
             pass
