@@ -11,7 +11,7 @@ class MorphismStack(Stack):
         item1 = cls.from_vartype(item1)
         item2 = cls.from_vartype(item2)
         if not item2.composable_with(item1):
-            raise TypeError('Cannot compose %s -> %s with %s%s' %(item2.__name__, item2.codomain.__name__, item1.__name__, repr(item1)))
+            raise TypeError('Cannot compose %s -> %s with %s' %(item2.__name__, item2.codomain.__name__, repr(item1)))
         return cls(item1 + item2)
 
 
@@ -36,7 +36,7 @@ class Morphism(Curry):
             item = type(item) == type and item.__name__ or item
             items.append("%s:%s=%s" % (name, self.domain[index].__name__, item))
             index+=1
-        return ', '.join(items)
+        return self.__name__ + ', '.join(items)
 
     def assert_domain_valid(self, args, domain):
         if len(args) != len(domain):
