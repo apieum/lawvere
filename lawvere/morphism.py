@@ -5,10 +5,13 @@ from .stack import Stack, compose_with, compose_with_self
 
 @compose_with_self
 class MorphismStack(Stack):
-    def __add__(self, other):
-        if not self.can_pipe_with(other):
-            raise TypeError('Cannot compose %s -> %s with %s%s' %(self.__name__, self.codomain.__name__, other.__name__, repr(other)))
-        return tuple.__add__(self, other)
+    @classmethod
+    def from_items(cls, item1, item2):
+        item1 = cls.from_vartype(item1)
+        item2 = cls.from_vartype(item2)
+        if not item1.can_pipe_with(item2):
+            raise TypeError('Cannot compose %s -> %s with %s%s' %(item1.__name__, item1.codomain.__name__, item2.__name__, repr(item2)))
+        return cls(item1 + item2)
 
 class MorphismSignature(Signature):
     def __init__(self, args, kwargs, domain=tuple(), codomain=tuple()):

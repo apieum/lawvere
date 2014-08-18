@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
 
-def tupleize(item, tuple_type=tuple):
-    return tuple_type(item if isinstance(item, tuple) else (item, ))
-
 def compose_with(stack_cls):
     def composable(cls):
         if not callable(cls): raise TypeError("Composables must be callable")
         if type(cls) != type:
-            return stack_cls((cls, ))
+            return stack_cls.from_vartype(cls)
 
         if is_composable(cls):
-            return type(cls.__name__, (cls, ), {'__composable__': stack_cls})
+            return type(cls.__name__, (cls, ), {'__stacktype__': stack_cls})
 
         def pipe(self, other):
-            return self.__composable__(tupleize(self, self.__composable__) + tupleize(other, self.__composable__))
+            return self.__stacktype__.from_items(self, other)
 
         def circle(self, other):
             return pipe(other, self)
 
         attributes = {
-            '__composable__': stack_cls,
+            '__stacktype__': stack_cls,
             'circle': circle,
             '__lshift__': circle,
             'pipe': pipe,
@@ -32,13 +29,21 @@ def compose_with(stack_cls):
 
 def compose_with_self(cls):
     cls = compose_with(cls)(cls)
-    setattr(cls, '__composable__', cls)
+    setattr(cls, '__stacktype__', cls)
     return cls
 
-is_composable = lambda func: hasattr(func, '__composable__')
+is_composable = lambda func: hasattr(func, '__stacktype__')
 
 @compose_with_self
 class Stack(tuple):
+    @classmethod
+    def from_vartype(cls, item):
+        return cls(item if isinstance(item, tuple) else (item, ))
+
+    @classmethod
+    def from_items(cls, item1, item2):
+        return cls(cls.from_vartype(item1) + cls.from_vartype(item2))
+
     def __call__(self, *args, **kwargs):
         index = 0
         result = None
@@ -46,18 +51,18 @@ class Stack(tuple):
             index += 1
             result = func(*args, **kwargs)
             if is_composable(result):
-                return self.__composable__(tupleize(result) + self[index:])
+                return self.__stacktype__(self.from_vartype(result) + self[index:])
             args, kwargs = (result, ), {}
         return result
 
     def replace_at(self, key, item):
         result = list(self)
         result[key] = item
-        return self.__composable__(result)
+        return self.__stacktype__(result)
 
     def replace(self, old, items):
-        items = tupleize(items)
-        old = tupleize(old)
+        items = self.from_vartype(items)
+        old = self.from_vartype(old)
         old_len = len(old)
         stack = tuple()
         start_index = 0
@@ -66,7 +71,7 @@ class Stack(tuple):
             start_index = found_index + old_len
 
         stack += self[found_index + old_len:]
-        return self.__composable__(stack)
+        return self.__stacktype__(stack)
 
     def iter_find(self, items):
         items_len = len(items)
