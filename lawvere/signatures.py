@@ -7,7 +7,6 @@ Undefined = type('Undefined', (object, ), {})
 call = lambda self, wrapper: self.get(type(wrapper).__name__, Signature)
 signature_factory = type('SignatureFactory', (dict, ), {'__call__': call})()
 
-
 def use_signature(signature):
     def set_signature(cls):
         signature_factory[cls.__name__] = signature
@@ -39,16 +38,19 @@ class Signature(OrderedDict):
     def merge(self, *args, **kwargs):
         signature = self.__copy__()
         signature.update(kwargs)
-        signature.update(zip(signature.iter_undefined(), args))
+        signature.update(zip(signature.iter_settable(), args))
         return signature
 
     def iter_undefined(self):
-        keys = tuple(self.keys())
-        for name in keys[:self.argcount]:
-            if self[name] == Undefined:
-                yield name
-        for name in keys[self.argcount:]:
-            yield name
+        keys = tuple(self.keys())[:self.argcount]
+        return iter(filter(lambda name: self[name] == Undefined, keys))
+
+    def keywords_names(self):
+        return tuple(self.keys())[self.argcount:]
+
+    def iter_settable(self):
+        return iter(tuple(self.iter_undefined()) + self.keywords_names())
+
 
     @classmethod
     def inspect_parameters(cls, func):
