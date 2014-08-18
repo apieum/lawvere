@@ -3,6 +3,11 @@ from collections import OrderedDict
 __all__=['Undefined', 'signature_factory', 'use_signature', 'Signature', 'from_func']
 
 Undefined = type('Undefined', (object, ), {})
+Void = type('Void', (object, ), {
+    '__instancecheck__': lambda self, instance: instance==None,
+    '__subclasscheck__': lambda self, subclass: subclass in (NoneType, Void)
+})
+
 
 call = lambda self, wrapper: self.get(type(wrapper).__name__, Signature)
 signature_factory = type('SignatureFactory', (dict, ), {'__call__': call})()
@@ -19,10 +24,12 @@ def from_func(wrapper, func):
 
 
 class Signature(OrderedDict):
-    def __init__(self, args, kwargs):
+    def __init__(self, args, kwargs, args_infos={}, return_infos=Void):
         self.argcount = len(args)
         OrderedDict.__init__(self, args)
         self.update(kwargs)
+        self.args_infos = args_infos
+        self.return_infos = return_infos
 
     @property
     def args(self):
@@ -51,21 +58,22 @@ class Signature(OrderedDict):
     def iter_settable(self):
         return iter(tuple(self.iter_undefined()) + self.keywords_names())
 
-
-    @classmethod
-    def inspect_parameters(cls, func):
-        argcount = getattr(func.__code__, 'co_argcount', 0)
-        defaults = func.__defaults__ or tuple()
-        arglen = argcount - len(defaults)
-        varnames = getattr(func.__code__, 'co_varnames', tuple())[:argcount]
-
-        args = OrderedDict.fromkeys(varnames[:arglen], Undefined)
-        keywords = OrderedDict(zip(varnames[arglen:], defaults))
-        return args, keywords
-
     @classmethod
     def from_func(cls, func):
-        return cls(*cls.inspect_parameters(func))
+        defaults = func.__defaults__ or tuple()
+        argcount = getattr(func.__code__, 'co_argcount') - len(defaults)
+        varnames = getattr(func.__code__, 'co_varnames')
+        args = OrderedDict.fromkeys(varnames[:argcount], Undefined)
+        keywords = OrderedDict(zip(varnames[argcount:], defaults))
+
+        annotations = dict(getattr(func,  '__annotations__', {}))
+        return_infos = Void
+        if 'return' in annotations:
+            return_infos = annotations['return'] or Void
+            del annotations['return']
+
+        return cls(args, keywords, annotations, return_infos)
 
     def __copy__(self):
-        return type(self)(self.args, self.keywords)
+        return type(self)(self.args, self.keywords, self.args_infos, self.return_infos)
+

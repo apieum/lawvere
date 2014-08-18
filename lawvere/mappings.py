@@ -8,8 +8,11 @@ class Arrow(object):
 
     def __call__(self, func):
         domain = isinstance(self.domain, tuple) and self.domain or (self.domain, )
-        setattr(func, 'domain', domain)
-        setattr(func, 'codomain', self.codomain)
+        varnames = getattr(func.__code__, 'co_varnames', tuple())
+        annotations = dict(zip(varnames, domain))
+        annotations['return'] = self.codomain
+        annotations.update(getattr(func, '__annotations__', {}))
+        setattr(func, '__annotations__', annotations)
         return self.__functype__(func)
 
 

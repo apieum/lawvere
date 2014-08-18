@@ -19,33 +19,28 @@ class MorphismStack(Stack):
 class Morphism(Curry):
     @property
     def domain(self):
-        return self.func.domain
+        return self.signature.args_infos
     @property
     def codomain(self):
-        return self.func.codomain
+        return self.signature.return_infos
 
     def composable_with(self, other):
         arg_name = next(self.signature.iter_undefined())
-        arg_key = tuple(self.signature).index(arg_name)
-        return issubclass(other.codomain, self.domain[arg_key])
+        return issubclass(other.codomain, self.domain[arg_name])
 
     def __repr__(self):
         items = list()
-        index = 0
         for name, item in self.signature.items():
             item = type(item) == type and item.__name__ or item
-            items.append("%s:%s=%s" % (name, self.domain[index].__name__, item))
-            index+=1
+            items.append("%s:%s=%s" % (name, self.domain[name].__name__, item))
         return self.__name__ + ', '.join(items)
 
     def assert_domain_valid(self, args, domain):
         if len(args) != len(domain):
             raise TypeError("Domain not valid")
-        index = 0
         for name, arg in args:
-            if not isinstance(arg, domain[index]):
+            if not isinstance(arg, domain[name]):
                 raise TypeError("Argument %s not in domain" % name)
-            index +=1
 
     def assert_codomain_valid(self, result, codomain):
         if not isinstance(result, codomain):
