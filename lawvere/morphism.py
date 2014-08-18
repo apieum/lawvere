@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 from .curry import Curry
 from .signatures import use_signature, Signature
+from .stack import Stack, compose_with, compose_with_self
+
+@compose_with_self
+class MorphismStack(Stack):
+    def __add__(self, other):
+        if not self.can_pipe_with(other):
+            raise TypeError('Cannot compose %s -> %s with %s%s' %(self.__name__, self.codomain.__name__, other.__name__, repr(other)))
+        return tuple.__add__(self, other)
 
 class MorphismSignature(Signature):
     def __init__(self, args, kwargs, domain=tuple(), codomain=tuple()):
@@ -49,7 +57,7 @@ class MorphismSignature(Signature):
         return type(self)(self.args, self.keywords, self.domain, self.codomain)
 
 
-
+@compose_with(MorphismStack)
 @use_signature(MorphismSignature)
 class Morphism(Curry):
     @property
@@ -63,4 +71,15 @@ class Morphism(Curry):
         return other.can_pipe_with(self)
 
     def can_pipe_with(self, other):
-        return issubclass(self.codomain, other.domain[0])
+        arg_name = next(other.signature.iter_undefined())
+        arg_key = tuple(other.signature).index(arg_name)
+        return issubclass(self.codomain, other.domain[arg_key])
+
+    def __repr__(self):
+        items = list()
+        index = 0
+        for name, item in self.signature.items():
+            item = type(item) == type and item.__name__ or item
+            items.append("%s:%s=%s" % (name, self.domain[index].__name__, item))
+            index+=1
+        return ', '.join(items)

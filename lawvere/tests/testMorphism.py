@@ -41,3 +41,21 @@ class MorphismTest(TestCase):
         add = morph(lambda x, y: x + y)
         self.assertTrue(add.can_circle_with(add))
         self.assertTrue(add.can_pipe_with(add))
+
+    def test_it_raises_an_error_when_cannot_compose(self):
+        morph1 = Arrow((int, int), int)
+        morph2 = Arrow((str, str), str)
+        add = morph1(lambda x, y: x + y)
+        concat = morph2(lambda s1, s2: s1 + s2)
+        with self.assertRaises(TypeError) as context:
+            add(1) >> concat
+
+
+    def test_it_checks_partial_args_to_compose(self):
+        morph1 = Arrow((int, int), int)
+        morph2 = Arrow((int, str), str)
+        add = morph1(lambda x, y: x + y)
+        cast_concat = morph2(lambda s1, s2: str(s1) + s2)
+        with self.assertRaises(TypeError) as context:
+            add(1) >> cast_concat(1)
+
