@@ -11,7 +11,7 @@ class MorphismStack(Stack):
         item1 = cls.from_vartype(item1)
         item2 = cls.from_vartype(item2)
         if not item2.composable_with(item1):
-            raise TypeError('Cannot compose %s -> %s with %s' %(item2.__name__, item2.codomain.__name__, repr(item1)))
+            raise TypeError('Cannot compose %s with %s' %(item2.return_infos, item1.args_infos))
         return cls(item1 + item2)
 
 
@@ -19,21 +19,22 @@ class MorphismStack(Stack):
 class Morphism(Curry):
     @property
     def domain(self):
-        return self.signature.args_infos
+        return self.signature.annotations
     @property
     def codomain(self):
-        return self.signature.return_infos
+        return self.signature.return_type
+
+    @property
+    def args_infos(self):
+        return '%s%s' %(self.__name__, self.signature.args_infos)
+
+    @property
+    def return_infos(self):
+        return '%s -> %s' %(self.__name__, self.signature.return_infos)
 
     def composable_with(self, other):
         arg_name = next(self.signature.iter_undefined())
         return issubclass(other.codomain, self.domain[arg_name])
-
-    def __repr__(self):
-        items = list()
-        for name, item in self.signature.items():
-            item = type(item) == type and item.__name__ or item
-            items.append("%s:%s=%s" % (name, self.domain[name].__name__, item))
-        return self.__name__ + ', '.join(items)
 
     def assert_domain_valid(self, args, domain):
         if len(args) != len(domain):

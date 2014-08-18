@@ -22,18 +22,43 @@ def use_signature(signature):
 def from_func(wrapper, func):
     return signature_factory(wrapper).from_func(func)
 
+typename = lambda item: type(item) == type and item.__name__ or item
+
+class Annotations(dict):
+    def __init__(self, annotations=dict()):
+        self.return_type = Void
+        if 'return' in annotations:
+            self.return_type = annotations['return'] or Void
+            del annotations['return']
+        dict.__init__(self, annotations)
+
+
 
 class Signature(OrderedDict):
-    def __init__(self, args, kwargs, args_infos={}, return_infos=Void):
+    def __init__(self, args, kwargs, annotations=Annotations()):
         self.argcount = len(args)
         OrderedDict.__init__(self, args)
         self.update(kwargs)
-        self.args_infos = args_infos
-        self.return_infos = return_infos
+        self.annotations = annotations
+
+    def arg_info(self, name):
+        return "%s:%s=%s" % (name, typename(self.annotations[name]), typename(self[name]))
+
+    @property
+    def args_infos(self):
+        return ', '.join([self.arg_info(name) for name in self.keys()])
+
+    @property
+    def return_infos(self):
+        return '-> %s' %typename(self.annotations.return_type)
 
     @property
     def args(self):
         return tuple(self.items())[:self.argcount]
+
+    @property
+    def return_type(self):
+        return self.annotations.return_type
 
     @property
     def keywords(self):
@@ -66,14 +91,9 @@ class Signature(OrderedDict):
         args = OrderedDict.fromkeys(varnames[:argcount], Undefined)
         keywords = OrderedDict(zip(varnames[argcount:], defaults))
 
-        annotations = dict(getattr(func,  '__annotations__', {}))
-        return_infos = Void
-        if 'return' in annotations:
-            return_infos = annotations['return'] or Void
-            del annotations['return']
+        annotations = Annotations(getattr(func,  '__annotations__', {}))
 
-        return cls(args, keywords, annotations, return_infos)
+        return cls(args, keywords, annotations)
 
     def __copy__(self):
-        return type(self)(self.args, self.keywords, self.args_infos, self.return_infos)
-
+        return type(self)(self.args, self.keywords, self.annotations)
