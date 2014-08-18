@@ -2,6 +2,7 @@
 from .curry import Curry
 from .signatures import use_signature, Signature
 from .stack import Stack, compose_with, compose_with_self
+from .mappings import ArrowType
 
 @compose_with_self
 class MorphismStack(Stack):
@@ -86,3 +87,5 @@ class Morphism(Curry):
             items.append("%s:%s=%s" % (name, self.domain[index].__name__, item))
             index+=1
         return ', '.join(items)
+
+morphism = ArrowType(Morphism)
