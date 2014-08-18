@@ -8,9 +8,9 @@ call = lambda self, wrapper: self.get(type(wrapper).__name__, Signature)
 signature_factory = type('SignatureFactory', (dict, ), {'__call__': call})()
 
 
-def use_signature(sig):
+def use_signature(signature):
     def set_signature(cls):
-        signature_factory[cls.__name__] = sig
+        signature_factory[cls.__name__] = signature
         return cls
     return set_signature
 

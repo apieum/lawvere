@@ -18,11 +18,11 @@ class Curry(object):
         return self.func.__name__
 
     def __call__(self, *args, **kwargs):
-        sig = self.signature.merge(*args, **kwargs)
-        if sig.valid():
-            return sig.apply(self.func)
+        signature = self.signature.merge(*args, **kwargs)
+        if signature.valid():
+            return signature.apply(self.func)
 
-        return type(self)(self.func, signature=sig)
+        return type(self)(self.func, signature=signature)
 
     def __eq__(self, other):
         return self.func == other.func and self.signature == other.signature
