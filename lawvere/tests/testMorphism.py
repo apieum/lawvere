@@ -38,8 +38,7 @@ class MorphismTest(TestCase):
     def test_it_knows_if_is_composable_with_other_morphism(self):
         morph = morphism((int, int), int)
         add = morph(lambda x, y: x + y)
-        self.assertTrue(add.can_circle_with(add))
-        self.assertTrue(add.can_pipe_with(add))
+        self.assertTrue(add.composable_with(add))
 
     def test_it_raises_an_error_when_cannot_compose(self):
         morph1 = morphism((int, int), int)

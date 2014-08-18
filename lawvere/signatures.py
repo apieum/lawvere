@@ -65,9 +65,5 @@ class Signature(OrderedDict):
     def from_func(cls, func):
         return cls(*cls.inspect_parameters(func))
 
-
-    def apply(self, func):
-        return func(**self)
-
     def __copy__(self):
         return type(self)(self.args, self.keywords)
