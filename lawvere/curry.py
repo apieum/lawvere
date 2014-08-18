@@ -7,11 +7,7 @@ from .stack import composable
 class Curry(object):
     def __init__(self, func, signature=None):
         self.func = func
-        self.__dict__['signature'] = signature
-
-    @property
-    def signature(self):
-        return self.__dict__['signature'] or from_func(self, self.func)
+        self.signature = signature or from_func(self, self.func)
 
     @property
     def __name__(self):
