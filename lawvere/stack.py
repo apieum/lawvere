@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-def tupleize(item):
-    return item if isinstance(item, tuple) else (item, )
+def tupleize(item, tuple_type=tuple):
+    return tuple_type(item if isinstance(item, tuple) else (item, ))
 
 def compose_with(stack_cls):
     def composable(cls):
@@ -13,7 +13,7 @@ def compose_with(stack_cls):
             return type(cls.__name__, (cls, ), {'__composable__': stack_cls})
 
         def pipe(self, other):
-            return self.__composable__(tupleize(self) + tupleize(other))
+            return self.__composable__(tupleize(self, self.__composable__) + tupleize(other, self.__composable__))
 
         def circle(self, other):
             return pipe(other, self)
