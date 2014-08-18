@@ -22,7 +22,7 @@ class MorphismSignature(Signature):
     @classmethod
     def from_func(cls, func):
         domain = getattr(func, 'domain', tuple())
-        codomain = getattr(func, 'codomain', tuple())
+        codomain = getattr(func, 'codomain', None)
         signature = cls(*cls.inspect_parameters(func), domain=domain, codomain=codomain)
         return signature
 
