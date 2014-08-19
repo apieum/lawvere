@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from .curry import Curry
 from .stack import Stack, compose_with, compose_with_self
-from .mappings import ArrowType
+from .arrow import ArrowType
 
 @compose_with_self
 class MorphismStack(Stack):

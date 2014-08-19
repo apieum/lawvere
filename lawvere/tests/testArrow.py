@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
-from lawvere.mappings import Arrow
+from lawvere.arrow import Arrow
 
 class ArrowTest(TestCase):
     def test_Arrow_join_a_domain_and_a_codomain(self):
