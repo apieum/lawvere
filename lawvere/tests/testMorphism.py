@@ -48,7 +48,6 @@ class MorphismTest(TestCase):
         with self.assertRaises(TypeError) as context:
             add(1) >> concat
 
-
     def test_it_checks_partial_args_to_compose(self):
         morph1 = morphism((int, int), int)
         morph2 = morphism((int, str), str)
@@ -56,4 +55,22 @@ class MorphismTest(TestCase):
         cast_concat = morph2(lambda s1, s2: str(s1) + s2)
         with self.assertRaises(TypeError) as context:
             add(1) >> cast_concat(1)
+
+    def test_it_checks_stacks_to_pipe(self):
+        morph1 = morphism((int, int), int)
+        morph2 = morphism((str, str), str)
+        add = morph1(lambda x, y: x + y)
+        add2 = add(1) >> add(1)
+        concat = morph2(lambda s1, s2: s1 + s2)
+        with self.assertRaises(TypeError) as context:
+            add2 >> concat('text')
+
+    def test_it_checks_stacks_to_circle(self):
+        morph1 = morphism((int, int), int)
+        morph2 = morphism((str, str), str)
+        add = morph1(lambda x, y: x + y)
+        add2 = add(1) >> add(1)
+        concat = morph2(lambda s1, s2: s1 + s2)
+        with self.assertRaises(TypeError) as context:
+            add2 << concat('text')
 

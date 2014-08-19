@@ -13,6 +13,24 @@ class MorphismStack(Stack):
             raise TypeError('Cannot compose %s with %s' %(item2.return_infos, item1.args_infos))
         return cls(item1 + item2)
 
+    @property
+    def domain(self):
+        return self[0].domain
+    @property
+    def codomain(self):
+        return self[-1].codomain
+
+    @property
+    def args_infos(self):
+        return self[0].args_infos
+
+    @property
+    def return_infos(self):
+        return self[-1].return_infos
+
+    def composable_with(self, other):
+        return self[0].composable_with(other)
+
 
 @compose_with(MorphismStack)
 class Morphism(Curry):
@@ -46,7 +64,6 @@ class Morphism(Curry):
         if not isinstance(result, codomain):
             raise TypeError("Result not in codomain")
         return result
-
 
     def apply(self, signature):
         self.assert_domain_valid(signature.args, self.domain)
