@@ -42,7 +42,7 @@ class Stack(tuple):
 
     @classmethod
     def from_items(cls, item1, item2):
-        return cls(cls.from_vartype(item1) + cls.from_vartype(item2))
+        return cls.from_vartype(item1) + cls.from_vartype(item2)
 
     def __call__(self, *args, **kwargs):
         index = 0
@@ -94,6 +94,12 @@ class Stack(tuple):
             return getattr(self[0], name)
 
         raise AttributeError('%s not set' % name)
+
+    def __add__(self, other):
+        return self.__stacktype__(tuple.__add__(self, other))
+
+    def __radd__(self, other):
+        return self.__stacktype__(tuple.__add__(other, self))
 
 
 composable = compose_with(Stack)
