@@ -13,6 +13,10 @@ class Curry(object):
     def __name__(self):
         return self.func.__name__
 
+    @property
+    def __annotations__(self):
+        return self.signature.annotations
+
     def __call__(self, *args, **kwargs):
         signature = self.signature.merge(*args, **kwargs)
         if signature.valid():
