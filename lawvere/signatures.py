@@ -25,13 +25,16 @@ def from_func(wrapper, func):
 typename = lambda item: type(item) == type and item.__name__ or item
 
 class Annotations(dict):
-    def __init__(self, annotations=dict()):
-        self.return_type = Void
-        if 'return' in annotations:
-            self.return_type = annotations['return'] or Void
-            del annotations['return']
-        dict.__init__(self, annotations)
+    def returns(self):
+        return self.get('return', Void) or Void
 
+    def args(self):
+        args = dict(self)
+        args.pop('return')
+        return args
+
+    def __setitem__(self, name, value):
+        raise ValueError('Cannot set Annotations items')
 
 
 class Signature(OrderedDict):
@@ -50,15 +53,18 @@ class Signature(OrderedDict):
 
     @property
     def return_infos(self):
-        return '-> %s' %typename(self.annotations.return_type)
+        return '-> %s' %typename(self.return_annotation)
+
+    @property
+    def return_annotation(self):
+        return self.annotations.returns()
+    @property
+    def args_annotation(self):
+        return self.annotations.args()
 
     @property
     def args(self):
         return tuple(self.items())[:self.argcount]
-
-    @property
-    def return_type(self):
-        return self.annotations.return_type
 
     @property
     def keywords(self):

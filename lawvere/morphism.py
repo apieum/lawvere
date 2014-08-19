@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from .curry import Curry
-from .signatures import use_signature, Signature
 from .stack import Stack, compose_with, compose_with_self
 from .mappings import ArrowType
 
@@ -19,10 +18,10 @@ class MorphismStack(Stack):
 class Morphism(Curry):
     @property
     def domain(self):
-        return self.signature.annotations
+        return self.signature.args_annotation
     @property
     def codomain(self):
-        return self.signature.return_type
+        return self.signature.return_annotation
 
     @property
     def args_infos(self):
