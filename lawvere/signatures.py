@@ -2,8 +2,8 @@
 from collections import OrderedDict
 __all__=['Undefined', 'signature_factory', 'use_signature', 'Signature', 'from_func']
 
-Undefined = type('Undefined', (object, ), {})
-Void = type('Void', (object, ), {
+Undefined = type('Undefined', (type, ), {})
+Void = type('Void', (type, ), {
     '__instancecheck__': lambda self, instance: instance==None,
     '__subclasscheck__': lambda self, subclass: subclass in (NoneType, Void)
 })
