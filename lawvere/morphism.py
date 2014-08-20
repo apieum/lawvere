@@ -11,7 +11,7 @@ class MorphismStack(Stack):
         item2 = cls.from_vartype(item2)
         if not item2.composable_with(item1):
             raise TypeError('Cannot compose %s with %s' %(item2.return_infos, item1.args_infos))
-        return cls(item1 + item2)
+        return item1 + item2
 
     @property
     def domain(self):
