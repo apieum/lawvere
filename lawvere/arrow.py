@@ -2,7 +2,7 @@
 
 class Arrow(object):
     __functype__ = lambda self, func: func
-    def __init__(self, domain, codomain):
+    def __init__(self, domain=tuple(), codomain=None):
         self.domain = domain
         self.codomain = codomain
 
