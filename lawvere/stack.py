@@ -28,9 +28,7 @@ def compose_with(stack_cls):
 
 
 def compose_with_self(cls):
-    cls = compose_with(cls)(cls)
-    setattr(cls, '__stacktype__', cls)
-    return cls
+    return compose_with(property(lambda self: type(self)))(cls)
 
 is_composable = lambda func: hasattr(func, '__stacktype__')
 

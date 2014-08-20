@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from .curry import Curry
-from .stack import Stack, compose_with, compose_with_self
+from .stack import Stack, compose_with
 from .arrow import ArrowType
 
-@compose_with_self
 class MorphismStack(Stack):
     @classmethod
     def from_items(cls, item1, item2):
