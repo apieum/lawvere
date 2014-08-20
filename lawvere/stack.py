@@ -56,9 +56,7 @@ class Stack(tuple):
         return result
 
     def replace_at(self, key, item):
-        result = list(self)
-        result[key] = item
-        return self.__stacktype__(result)
+        return self[:key] + self.from_vartype(item) + self[key+1:]
 
     def replace(self, old, items):
         items = self.from_vartype(items)
