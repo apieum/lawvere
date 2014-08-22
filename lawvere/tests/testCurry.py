@@ -20,7 +20,13 @@ class CurryTest(TestCase):
         curry = self.Type(self.expected)
         self.assertEqual('expected', curry.__name__)
 
-    def test_it_make_callable_partial(self):
+    def test_it_is_a_tuple_of_func(self):
+        sub = self.Type(self.sub)
+        sub2_before_sub3 = sub(2) >> sub(b=3)
+        self.assertEqual(sub(2), sub2_before_sub3[0])
+        self.assertEqual(sub(b=3), sub2_before_sub3[1])
+
+    def test_it_makes_callables_partials(self):
         sub = self.Type(self.sub)
         self.assertEqual(4, sub(7)(3))
         self.assertEqual(4, sub(b=3)(7))
@@ -38,24 +44,13 @@ class CurryTest(TestCase):
         mul2_before_sub3 = mul(2) >> sub(b=3)
         self.assertEqual(7, mul2_before_sub3(5))
 
-    def test_it_composed_func_can_be_managed_as_list(self):
-        mul = self.Type(self.mul)
-        sub = self.Type(self.sub)
-
-        mul2_before_sub3 = mul(2) >> sub(b=3)
-        self.assertEqual(sub(b=3), mul2_before_sub3[1])
-        self.assertEqual(mul(2), mul2_before_sub3[0])
-        self.assertEqual(7, mul2_before_sub3(5))
-
     def test_it_can_del_stack_item(self):
         mul = self.Type(self.mul)
         sub = self.Type(self.sub)
 
-        mul2_before_sub3 = mul(2) >> sub(b=3)
-        sub3 = mul2_before_sub3.without(mul(2))
-        self.assertEqual(sub(b=3), sub3)
-        mul2 = mul2_before_sub3.without(sub3)
-        self.assertEqual(mul(2), mul2)
+        mul2_sub3 = mul(2) >> sub(b=3)
+        self.assertEqual(sub(b=3), mul2_sub3.without(mul(2)))
+        self.assertEqual(mul(2), mul2_sub3.without(sub(b=3)))
 
     def test_it_can_replace_stack_item_at_key(self):
         mul = self.Type(self.mul)
@@ -101,3 +96,4 @@ class CurryTest(TestCase):
 
         curry = sub(b=3) << mul << mul(2)
         self.assertEqual(curry(3)(2), 9)
+
