@@ -86,10 +86,8 @@ class Stack(tuple):
     def __getattr__(self, name):
         if name in self.__dict__:
             return self.__dict__[name]
-        if len(self) == 1:
-            return getattr(self[0], name)
 
-        raise AttributeError('%s not set' % name)
+        return getattr(self[0], name)
 
     def __add__(self, other):
         return self.__stacktype__(tuple.__add__(self, other))
