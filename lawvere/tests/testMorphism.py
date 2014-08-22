@@ -1,21 +1,31 @@
 # -*- coding: utf-8 -*-
-from unittest import TestCase
 from lawvere.morphism import Morphism, morphism
 
-class MorphismTest(TestCase):
-    def test_it_can_curry(self):
-        morph = morphism(int, int)
-        func = lambda x, y=1, z=2: x + y + z
-        morph = morph(func)
-        add_5 = morph(z=3, y=2)
-        self.assertEqual(10, add_5(5))
+def Curry():
+    from .testCurry import CurryTest
+    return CurryTest
 
-    def test_it_is_composable(self):
-        morph = morphism((int, int), int)
-        add = morph(lambda x, y: x + y)
-        sub = morph(lambda x, y: x - y)
-        add_5_sub_2 = add(5) >> sub(y=2)
-        self.assertEqual(10, add_5_sub_2(7))
+def annotate(func):
+    setattr(func, '__annotations__', {'a': int, 'b': int, 'return': int})
+    return func
+
+class MorphismTest(Curry()):
+    Type = Morphism
+    @staticmethod
+    @annotate
+    def expected(a, b):
+        pass
+
+    @staticmethod
+    @annotate
+    def sub(a, b):
+        return a - b
+
+    @staticmethod
+    @annotate
+    def mul(a, b):
+        return a * b
+
 
     def test_it_raises_type_error_if_domain_len_not_equals_args_len(self):
         morph = morphism(int, int)
