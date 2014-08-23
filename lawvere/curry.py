@@ -30,3 +30,8 @@ class Curry(object):
 
     def apply(self, signature):
         return self.func(**signature)
+
+    def accept(self, args=tuple(), kwargs=dict()):
+        args_check = len(args) <= self.signature.argcount
+        kwargs_check = set(kwargs.keys()).issubset(set(self.signature.keys()))
+        return  args_check and kwargs_check

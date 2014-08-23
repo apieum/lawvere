@@ -97,3 +97,19 @@ class CurryTest(TestCase):
         curry = sub(b=3) << mul << mul(2)
         self.assertEqual(curry(3)(2), 9)
 
+    def test_it_accepts_args_if_count_is_lower_than_signature_require(self):
+        expected = self.Type(self.expected)
+
+        self.assertTrue(expected.accept((1, )))
+        self.assertTrue(expected.accept((1, '2')))
+        self.assertFalse(expected.accept((1, '2', 3)))
+
+
+    def test_it_accepts_kwargs_if_keys_included_in_signature_keys(self):
+        expected = self.Type(self.expected)
+
+        self.assertTrue(expected.accept(kwargs={'a':1}))
+        self.assertTrue(expected.accept(kwargs={'a':1, 'b':'2'}))
+        self.assertFalse(expected.accept(kwargs={'c':1}))
+
+
