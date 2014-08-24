@@ -3,10 +3,6 @@ from collections import OrderedDict
 __all__=['Undefined', 'signature_factory', 'use_signature', 'Signature', 'from_func']
 
 Undefined = type('Undefined', (type, ), {})
-Void = type('Void', (type, ), {
-    '__instancecheck__': lambda self, instance: instance==None,
-    '__subclasscheck__': lambda self, subclass: subclass in (NoneType, Void)
-})
 
 
 call = lambda self, wrapper: self.get(type(wrapper).__name__, Signature)
@@ -26,7 +22,7 @@ typename = lambda item: type(item) == type and item.__name__ or item
 
 class Annotations(dict):
     def returns(self):
-        return self.get('return', Void) or Void
+        return self.get('return', None)
 
     def args(self):
         args = dict(self)
