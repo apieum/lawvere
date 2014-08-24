@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 
-class Arrow(object):
-    __functype__ = lambda self, func: func
-    def __init__(self, domain=tuple(), codomain=None):
-        self.domain = domain
-        self.codomain = codomain
+Default = type('Default', (tuple, ), {})()
 
-    def __call__(self, func):
-        domain = isinstance(self.domain, tuple) and self.domain or (self.domain, )
+def Arrow(domain=Default, codomain=Default, func_type=lambda func: func):
+    if type(domain) == type:
+        domain = (domain, )
+
+    if callable(domain):
+        return func_type(domain)
+
+    def call(func):
         varnames = getattr(func.__code__, 'co_varnames', tuple())
-        annotations = dict(zip(varnames, domain))
-        annotations['return'] = self.codomain
-        annotations.update(getattr(func, '__annotations__', {}))
+        annotations = getattr(func, '__annotations__', {})
+        annotations.update(zip(varnames, domain))
+        if codomain is not Default:
+            annotations['return'] = codomain
         setattr(func, '__annotations__', annotations)
-        return self.__functype__(func)
-
+        return func_type(func)
+    return call
 
 def ArrowType(cls):
-    return type('Arrow', (Arrow, ), {'__functype__': staticmethod(cls)})
+    return lambda domain=Default, codomain=Default: Arrow(domain, codomain, cls)
