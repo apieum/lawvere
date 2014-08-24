@@ -17,4 +17,4 @@ class Arrow(object):
 
 
 def ArrowType(cls):
-    return type('Arrow', (Arrow, ), {'__functype__': cls})
+    return type('Arrow', (Arrow, ), {'__functype__': staticmethod(cls)})
