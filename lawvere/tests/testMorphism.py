@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 from lawvere import Morphism, morphism
+from . import testCurry
+from sys import version_info
+if version_info >= (3, ):
+    from .morphism3 import Morphism3Test
 
-def Curry():
-    from .testCurry import CurryTest
-    return CurryTest
 
 def annotate(func):
     setattr(func, '__annotations__', {'a': int, 'b': int, 'return': int})
     return func
 
-class MorphismTest(Curry()):
+class MorphismTest(testCurry.CurryTest):
     Type = Morphism
     @staticmethod
     @annotate
