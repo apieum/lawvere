@@ -80,18 +80,21 @@ class Signature(OrderedDict):
         return signature
 
     def iter_undefined(self):
-        keys = tuple(self.keys())[:self.argcount]
-        return iter(filter(lambda name: self[name] == Undefined, keys))
+        return iter(name for name in self.args_names() if self[name] == Undefined)
 
     def iter_defined(self):
-        keys = tuple(self.keys())[:self.argcount]
-        return iter(filter(lambda name: self[name] != Undefined, keys))
+        return iter(name for name in self.args_names() if self[name] != Undefined)
+
+    def args_names(self):
+        keys = iter(self)
+        for i in range(self.argcount):
+            yield next(keys)
 
     def keywords_names(self):
         return tuple(self.keys())[self.argcount:]
 
     def iter_settable(self):
-        return iter(tuple(self.iter_undefined()) + self.keywords_names())
+        return tuple(self.iter_undefined()) + self.keywords_names()
 
     @classmethod
     def from_func(cls, func):
