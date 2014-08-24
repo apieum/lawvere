@@ -5,10 +5,10 @@ from lawvere.dispatcher import dispatch, FuncDispatch, DispatchResolver
 
 
 class DispatchTest(TestCase):
-    def test_it_is_callable_and_returns_a_FuncDispatch_when_calling(self):
+    def test_it_is_callable_and_returns_a_func_with_register(self):
         given = dispatch(lambda func: func)
         self.assertTrue(callable(given))
-        self.assertIsInstance(given(lambda: None), FuncDispatch)
+        self.assertTrue(hasattr(given(lambda: None), 'register'))
 
 class FuncDispatchTest(TestCase):
     def test_it_registers_wrapper_results(self):

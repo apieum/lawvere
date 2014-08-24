@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 def dispatch(wrapper):
-    return lambda func: FuncDispatch(func, wrapper)
+    def dispatch(func):
+        func = FuncDispatch(func, wrapper)
+        setattr(func[0], 'register', func.register)
+        return func[0]
+    return dispatch
 
 
 class FuncDispatch(list):
