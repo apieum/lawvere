@@ -84,3 +84,13 @@ class MorphismTest(Curry()):
         with self.assertRaises(TypeError) as context:
             add2 << concat('text')
 
+    def test_accept_is_false_if_an_arg_is_not_of_the_good_type(self):
+        expected = self.Type(self.expected)
+        self.assertFalse(expected.accept(('1', )))
+
+    def test_accept_is_false_if_an_kwarg_is_not_of_the_good_type(self):
+        expected = self.Type(self.expected)
+        self.assertFalse(expected.accept(kwargs={'b':'1'}))
+
+
+

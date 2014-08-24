@@ -58,4 +58,13 @@ class Morphism(Curry):
         self.assert_domain_valid(signature.args, self.domain)
         return self.assert_codomain_valid(self.func(**signature), self.codomain)
 
+    def accept(self, args=tuple(), kwargs=dict()):
+        if not Curry.accept(self, args, kwargs): return False
+        signature = self.signature.merge(*args, **kwargs)
+        for name in signature.iter_defined():
+            if not isinstance(signature[name], self.domain[name]):
+                return False
+
+        return True
+
 morphism = ArrowType(Morphism)

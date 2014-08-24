@@ -83,6 +83,10 @@ class Signature(OrderedDict):
         keys = tuple(self.keys())[:self.argcount]
         return iter(filter(lambda name: self[name] == Undefined, keys))
 
+    def iter_defined(self):
+        keys = tuple(self.keys())[:self.argcount]
+        return iter(filter(lambda name: self[name] != Undefined, keys))
+
     def keywords_names(self):
         return tuple(self.keys())[self.argcount:]
 

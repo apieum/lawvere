@@ -101,15 +101,15 @@ class CurryTest(TestCase):
         expected = self.Type(self.expected)
 
         self.assertTrue(expected.accept((1, )))
-        self.assertTrue(expected.accept((1, '2')))
-        self.assertFalse(expected.accept((1, '2', 3)))
+        self.assertTrue(expected.accept((1, 2)))
+        self.assertFalse(expected.accept((1, 2, 3)))
 
 
     def test_it_accepts_kwargs_if_keys_included_in_signature_keys(self):
         expected = self.Type(self.expected)
 
         self.assertTrue(expected.accept(kwargs={'a':1}))
-        self.assertTrue(expected.accept(kwargs={'a':1, 'b':'2'}))
+        self.assertTrue(expected.accept(kwargs={'a':1, 'b':2}))
         self.assertFalse(expected.accept(kwargs={'c':1}))
 
 
