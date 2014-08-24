@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
-from lawvere.curry import Curry
+from lawvere import Curry
 
 
 class CurryTest(TestCase):

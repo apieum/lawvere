@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from lawvere.morphism import Morphism, morphism
+from lawvere import Morphism, morphism
 
 def Curry():
     from .testCurry import CurryTest

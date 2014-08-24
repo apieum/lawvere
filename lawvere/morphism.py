@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from .curry import Curry
 from .stack import Stack, compose_with
-from .arrow import ArrowType
 
 class MorphismStack(Stack):
     @classmethod
@@ -66,5 +65,3 @@ class Morphism(Curry):
                 return False
 
         return True
-
-morphism = ArrowType(Morphism)
