@@ -43,7 +43,7 @@ class Morphism(Curry):
 
     def assert_domain_valid(self, args, domain):
         if len(args) != len(domain):
-            raise TypeError("Domain not valid")
+            raise TypeError("Domain %s not valid for args: %s" %(domain, args))
         for name, arg in args:
             if not isinstance(arg, domain[name]):
                 raise TypeError("Argument %s not in domain" % name)
