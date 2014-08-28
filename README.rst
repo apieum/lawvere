@@ -5,7 +5,31 @@ Lawvere
 .. image:: https://pypip.in/v/lawvere/badge.png
         :target: https://pypi.python.org/pypi/lawvere
 
-Functionnal Tools.
+---------------------------------------------------------------------
+
+**What ?**
+
+Functionnal Tool: (de)composition with type checking, multiple dispatch.
+
+**Why ?**
+
+There is a lot of functionnal tools in python: toolz, funcy, fn.py, Pymonads...
+
+They are great but none of them do type checking which, in my opinion, is a big loss from functionnal paradigm view.
+
+**How ?**
+
+With a complex and unmaintenable api: a single decorator called *"arrow"*.
+
+For a *technical* explanation of arrows you can look at: `Understanding arrows <http://en.wikibooks.org/wiki/Haskell/Understanding_arrows>`_
+
+For a *conceptual* explanation: *"Conceptual Mathematics: A First Introduction to Categories"* [F. William Lawvere, Stephen H. Schanuel] is good start.
+
+
+**Prerequisites**
+
+Not mandatory but I strongly recommand to have notions of lambda calculi (Currying) and tuples in algebra notations (e.g. `signatures <http://en.wikipedia.org/wiki/Signature_%28logic%29>`_)
+
 
 ---------------------------------------------------------------------
 
@@ -35,6 +59,8 @@ or from sources::
 =====
 Usage
 =====
+
+
 
 
 ===========

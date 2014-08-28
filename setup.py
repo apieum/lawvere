@@ -5,12 +5,12 @@ import os
 pkgName = 'lawvere'
 setup(
     name=pkgName,
-    version='0.0',
+    version='0.1',
     url='http://www.python.org/pypi/' + pkgName,
     author='Grégory Salvan',
     author_email='apieum@gmail.com',
     license='LGPL',
-    description='Functionnal tools: monads, morphism, arrows, curry and function composition',
+    description='Easy To Use functionnal tool: (de)composition with type checking (curry, arrows), multiple dispatch',
     long_description=open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
     classifiers=[
         "Programming Language :: Python",
