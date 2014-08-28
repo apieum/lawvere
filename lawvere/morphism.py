@@ -22,8 +22,8 @@ class MorphismStack(Stack):
         return self[0].composable_with(other)
 
     def __addstacks__(self, stack1, stack2):
-        if not stack1.composable_with(stack2):
-            raise TypeError('Cannot compose %s with %s' %(stack2.return_infos, stack1.args_infos))
+        if not stack2.composable_with(stack1):
+            raise TypeError('Cannot compose %s with %s' %(stack1.return_infos, stack2.args_infos))
         return Stack.__addstacks__(self, stack1, stack2)
 
 
@@ -44,7 +44,7 @@ class Morphism(Curry):
 
     @property
     def return_infos(self):
-        return '%s -> %s' %(self.__name__, self.signature.return_infos)
+        return '%s %s' %(self.__name__, self.signature.return_infos)
 
     def composable_with(self, other):
         arg_name = next(self.signature.iter_undefined())

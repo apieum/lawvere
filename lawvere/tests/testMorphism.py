@@ -133,3 +133,24 @@ class MorphismTest(testCurry.CurryTest):
             inttostr(1)
         self.assertIn(' codomain', str(context.exception))
         self.assertTrue(inttostr[0].check_domain)
+
+    def test_when_replacing_at_it_checks_if_composable(self):
+        morph1 = morphism(int, int)
+        morph2 = morphism(int, str)
+        identity = morph1(lambda x: x)
+        tostr = morph2(lambda x: "%s" %x)
+        inttostr = identity >> tostr
+        with self.assertRaises(TypeError) as context:
+            inttostr.replace_at(0, tostr)
+        self.assertIn('Cannot compose', str(context.exception))
+
+    def test_when_replacing_it_checks_if_composable(self):
+        morph1 = morphism(int, int)
+        morph2 = morphism(int, str)
+        identity = morph1(lambda x: x)
+        tostr = morph2(lambda x: "%s" %x)
+        inttostr = tostr << identity
+        with self.assertRaises(TypeError) as context:
+            inttostr.replace(identity, identity >> tostr)
+        self.assertIn('Cannot compose', str(context.exception))
+
