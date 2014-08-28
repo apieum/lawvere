@@ -154,3 +154,15 @@ class MorphismTest(testCurry.CurryTest):
             inttostr.replace(identity, identity >> tostr)
         self.assertIn('Cannot compose', str(context.exception))
 
+    def test_when_only_one_item_it_checks_domain_and_codomain(self):
+        morph = morphism(int, int)
+        identity = morph(lambda x: x)
+        tostr = morph(lambda x: "%s" %x)
+        # create stack and enforce 'without' testing
+        inttostr = (identity >> tostr).without(identity)
+        with self.assertRaises(TypeError) as context:
+            inttostr('1')
+        self.assertIn(' domain', str(context.exception))
+        with self.assertRaises(TypeError) as context:
+            inttostr(1)
+        self.assertIn(' codomain', str(context.exception))
