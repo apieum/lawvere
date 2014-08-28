@@ -31,18 +31,21 @@ class MorphismTest(testCurry.CurryTest):
     def test_it_raises_type_error_if_domain_len_not_equals_args_len(self):
         morph = morphism(int, int)
         add = morph(lambda x, y: x + y)
+        add.check_domain = True
         with self.assertRaises(TypeError) as context:
             add(4, 2)
 
     def test_it_raises_type_error_if_args_not_instance_of_domain(self):
         morph = morphism((str, int), int)
         add = morph(lambda x, y: x + y)
+        add.check_domain = True
         with self.assertRaises(TypeError) as context:
             add(4, 2)
 
     def test_it_raises_type_error_if_result_not_instance_of_codomain(self):
         morph = morphism((int, int), str)
         add = morph(lambda x, y: x + y)
+        add.check_codomain = True
         with self.assertRaises(TypeError) as context:
             add(4, 2)
 
@@ -97,19 +100,19 @@ class MorphismTest(testCurry.CurryTest):
     def test_can_disable_domain_check(self):
         morph1 = morphism((int, int), str)
         add = morph1(lambda x, y: x + y)
+        self.assertEqual('ab', add('a', 'b'))
+        add.check_domain = True
         with self.assertRaises(TypeError):
             add('a', 'b')
 
-        add.check_domain = False
-        self.assertEqual('ab', add('a', 'b'))
 
     def test_can_disable_codomain_check(self):
         morph1 = morphism((int, int), str)
         add = morph1(lambda x, y: x + y)
+
+        self.assertEqual(3, add(1, 2))
+        add.check_codomain = True
         with self.assertRaises(TypeError):
             add(1, 2)
-
-        add.check_codomain = False
-        self.assertEqual(3, add(1, 2))
 
 

@@ -22,8 +22,8 @@ class MorphismStack(Stack):
 
 @compose_with(MorphismStack)
 class Morphism(Curry):
-    check_domain = True
-    check_codomain = True
+    check_domain = False
+    check_codomain = False
     @property
     def domain(self):
         return self.signature.args_annotation
