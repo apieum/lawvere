@@ -122,7 +122,7 @@ class MorphismTest(testCurry.CurryTest):
         with self.assertRaises(TypeError) as context:
             add2('n')
         self.assertIn(' domain', str(context.exception))
-        self.assertTrue(add2[0].check_domain)
+        self.assertFalse(add2[0].check_domain)
 
     def test_when_calling_stack_last_item_codomain_is_checked(self):
         morph = morphism(int, int)
@@ -132,7 +132,7 @@ class MorphismTest(testCurry.CurryTest):
         with self.assertRaises(TypeError) as context:
             inttostr(1)
         self.assertIn(' codomain', str(context.exception))
-        self.assertTrue(inttostr[0].check_domain)
+        self.assertFalse(inttostr[0].check_domain)
 
     def test_when_replacing_at_it_checks_if_composable(self):
         morph1 = morphism(int, int)

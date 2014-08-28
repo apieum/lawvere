@@ -3,10 +3,21 @@ from .curry import Curry
 from .stack import Stack, compose_with
 
 class MorphismStack(Stack):
+    def checks(self, check=True):
+        self[0].check_domain = check
+        self[-1].check_codomain = check
+
     def __call__(self, *args, **kwargs):
-        self[0].check_domain = True
-        self[-1].check_codomain = True
-        return Stack.__call__(self, *args, **kwargs)
+        self.checks(True)
+        try:
+            result = Stack.__call__(self, *args, **kwargs)
+        except:
+            self.checks(False)
+            raise
+        else:
+            self.checks(False)
+            return result
+
 
     @property
     def codomain(self):
