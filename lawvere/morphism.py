@@ -8,14 +8,6 @@ class MorphismStack(Stack):
         self[-1].check_codomain = True
         return Stack.__call__(self, *args, **kwargs)
 
-    @classmethod
-    def from_items(cls, item1, item2):
-        item1 = cls.from_vartype(item1)
-        item2 = cls.from_vartype(item2)
-        if not item2.composable_with(item1):
-            raise TypeError('Cannot compose %s with %s' %(item2.return_infos, item1.args_infos))
-        return item1 + item2
-
     @property
     def codomain(self):
         return self[-1].codomain
@@ -23,6 +15,16 @@ class MorphismStack(Stack):
     @property
     def return_infos(self):
         return self[-1].return_infos
+
+    def composable_with(self, other):
+        if len(other) == 0 or len(self) == 0:
+            return True
+        return self[0].composable_with(other)
+
+    def __addstacks__(self, stack1, stack2):
+        if not stack1.composable_with(stack2):
+            raise TypeError('Cannot compose %s with %s' %(stack2.return_infos, stack1.args_infos))
+        return Stack.__addstacks__(self, stack1, stack2)
 
 
 @compose_with(MorphismStack)
