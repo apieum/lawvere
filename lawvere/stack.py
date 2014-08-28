@@ -60,14 +60,13 @@ class Stack(tuple):
         items = self.from_vartype(items)
         old = self.from_vartype(old)
         old_len = len(old)
-        stack = tuple()
+        stack = self.__stacktype__()
         start_index = 0
         for found_index in self.iter_find(old):
             stack += self[start_index:found_index] + items
             start_index = found_index + old_len
 
-        stack += self[found_index + old_len:]
-        return self.__stacktype__(stack)
+        return stack + self[found_index + old_len:]
 
     def iter_find(self, items):
         items_len = len(items)
@@ -90,11 +89,13 @@ class Stack(tuple):
         return getattr(self[0], name)
 
     def __add__(self, other):
-        return self.__stacktype__(tuple.__add__(self, other))
+        return self.__addstacks__(self, other)
 
     def __radd__(self, other):
-        return self.__stacktype__(tuple.__add__(other, self))
+        return self.__addstacks__(other, self)
 
+    def __addstacks__(self, stack1, stack2):
+        return self.__stacktype__(tuple.__add__(stack1, stack2))
 
     def __getitem__(self, index):
         result = tuple.__getitem__(self, index)
