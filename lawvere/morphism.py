@@ -18,7 +18,6 @@ class MorphismStack(Stack):
             self.checks(False)
             return result
 
-
     @property
     def codomain(self):
         return self[-1].codomain
@@ -28,9 +27,9 @@ class MorphismStack(Stack):
         return self[-1].return_infos
 
     def composable_with(self, other):
-        if len(other) == 0 or len(self) == 0:
-            return True
-        return self[0].composable_with(other)
+        return len(other) == 0 \
+            or len(self) == 0 \
+            or self[0].composable_with(other)
 
     def __addstacks__(self, stack1, stack2):
         if not stack2.composable_with(stack1):
