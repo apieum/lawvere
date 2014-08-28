@@ -22,6 +22,8 @@ class MorphismStack(Stack):
 
 @compose_with(MorphismStack)
 class Morphism(Curry):
+    check_domain = True
+    check_codomain = True
     @property
     def domain(self):
         return self.signature.args_annotation
@@ -51,11 +53,14 @@ class Morphism(Curry):
     def assert_codomain_valid(self, result, codomain):
         if not isinstance(result, codomain):
             raise TypeError("Result not in codomain")
-        return result
 
     def apply(self, signature):
-        self.assert_domain_valid(signature.args, self.domain)
-        return self.assert_codomain_valid(self.func(**signature), self.codomain)
+        if self.check_domain:
+            self.assert_domain_valid(signature.args, self.domain)
+        result = self.func(**signature)
+        if self.check_codomain:
+            self.assert_codomain_valid(result, self.codomain)
+        return result
 
     def accept(self, args=tuple(), kwargs=dict()):
         if not Curry.accept(self, args, kwargs): return False

@@ -94,4 +94,22 @@ class MorphismTest(testCurry.CurryTest):
         self.assertFalse(expected.accept(kwargs={'b':'1'}))
 
 
+    def test_can_disable_domain_check(self):
+        morph1 = morphism((int, int), str)
+        add = morph1(lambda x, y: x + y)
+        with self.assertRaises(TypeError):
+            add('a', 'b')
+
+        add.check_domain = False
+        self.assertEqual('ab', add('a', 'b'))
+
+    def test_can_disable_codomain_check(self):
+        morph1 = morphism((int, int), str)
+        add = morph1(lambda x, y: x + y)
+        with self.assertRaises(TypeError):
+            add(1, 2)
+
+        add.check_codomain = False
+        self.assertEqual(3, add(1, 2))
+
 
