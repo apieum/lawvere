@@ -96,4 +96,14 @@ class Stack(tuple):
         return self.__stacktype__(tuple.__add__(other, self))
 
 
+    def __getitem__(self, index):
+        result = tuple.__getitem__(self, index)
+        if isinstance(index, slice):
+            result = self.__stacktype__(result)
+        return result
+
+    def __getslice__(self, i, j):
+        return self.__getitem__(slice(i, j))
+
+
 composable = compose_with(Stack)

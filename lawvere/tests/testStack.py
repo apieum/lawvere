@@ -125,4 +125,12 @@ class ComposableTest(TestCase):
         self.assertEqual(test1.replace_at(1, true), expected)
         self.assertEqual(test1.replace_at(1, true >> true), expected >> true)
 
+    def test_it_returns_stacktype_when_slicing(self):
+        true = composable(lambda a: a and True)
+        false = composable(lambda a: a and False)
+        test1 = true >> false
+        self.assertIsInstance(test1[1:], Stack)
+
+
+
 
