@@ -4,6 +4,6 @@ from .arrow import ArrowType
 from .dispatcher import dispatch
 from .stack import composable, compose_with
 
-morphism = ArrowType(dispatch(Morphism))
-arrow = ArrowType(Morphism)
+morphism = ArrowType(Morphism)
+arrow = ArrowType(dispatch(Morphism))
 curry = dispatch(Curry)
