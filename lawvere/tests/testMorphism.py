@@ -32,21 +32,21 @@ class MorphismTest(testCurry.CurryTest):
         morph = morphism(int, int)
         add = morph(lambda x, y: x + y)
         add.check_domain = True
-        with self.assertRaises(TypeError) as context:
+        with self.assertRaises(TypeError):
             add(4, 2)
 
     def test_it_raises_type_error_if_args_not_instance_of_domain(self):
         morph = morphism((str, int), int)
         add = morph(lambda x, y: x + y)
         add.check_domain = True
-        with self.assertRaises(TypeError) as context:
+        with self.assertRaises(TypeError):
             add(4, 2)
 
     def test_it_raises_type_error_if_result_not_instance_of_codomain(self):
         morph = morphism((int, int), str)
         add = morph(lambda x, y: x + y)
         add.check_codomain = True
-        with self.assertRaises(TypeError) as context:
+        with self.assertRaises(TypeError):
             add(4, 2)
 
     def test_it_knows_if_is_composable_with_other_morphism(self):
@@ -59,7 +59,7 @@ class MorphismTest(testCurry.CurryTest):
         morph2 = morphism((str, str), str)
         add = morph1(lambda x, y: x + y)
         concat = morph2(lambda s1, s2: s1 + s2)
-        with self.assertRaises(TypeError) as context:
+        with self.assertRaises(TypeError):
             add(1) >> concat
 
     def test_it_checks_partial_args_to_compose(self):
@@ -67,7 +67,7 @@ class MorphismTest(testCurry.CurryTest):
         morph2 = morphism((int, str), str)
         add = morph1(lambda x, y: x + y)
         cast_concat = morph2(lambda s1, s2: str(s1) + s2)
-        with self.assertRaises(TypeError) as context:
+        with self.assertRaises(TypeError):
             add(1) >> cast_concat(1)
 
     def test_it_checks_stacks_to_pipe(self):
@@ -76,7 +76,7 @@ class MorphismTest(testCurry.CurryTest):
         add = morph1(lambda x, y: x + y)
         add2 = add(1) >> add(1)
         concat = morph2(lambda s1, s2: s1 + s2)
-        with self.assertRaises(TypeError) as context:
+        with self.assertRaises(TypeError):
             add2 >> concat('text')
 
     def test_it_checks_stacks_to_circle(self):
@@ -85,7 +85,7 @@ class MorphismTest(testCurry.CurryTest):
         add = morph1(lambda x, y: x + y)
         add2 = add(1) >> add(1)
         concat = morph2(lambda s1, s2: s1 + s2)
-        with self.assertRaises(TypeError) as context:
+        with self.assertRaises(TypeError):
             add2 << concat('text')
 
     def test_accept_is_false_if_an_arg_is_not_of_the_good_type(self):
@@ -98,8 +98,8 @@ class MorphismTest(testCurry.CurryTest):
 
 
     def test_can_disable_domain_check(self):
-        morph1 = morphism((int, int), str)
-        add = morph1(lambda x, y: x + y)
+        morph = morphism((int, int), str)
+        add = morph(lambda x, y: x + y)
         self.assertEqual('ab', add('a', 'b'))
         add.check_domain = True
         with self.assertRaises(TypeError):
@@ -107,12 +107,29 @@ class MorphismTest(testCurry.CurryTest):
 
 
     def test_can_disable_codomain_check(self):
-        morph1 = morphism((int, int), str)
-        add = morph1(lambda x, y: x + y)
+        morph = morphism((int, int), str)
+        add = morph(lambda x, y: x + y)
 
         self.assertEqual(3, add(1, 2))
         add.check_codomain = True
         with self.assertRaises(TypeError):
             add(1, 2)
 
+    def test_when_calling_stack_first_item_domain_is_checked(self):
+        morph = morphism((int, int), int)
+        add = morph(lambda x, y: x + y)
+        add2 = add(1) >> add(1)
+        with self.assertRaises(TypeError) as context:
+            add2('n')
+        self.assertIn(' domain', str(context.exception))
+        self.assertTrue(add2[0].check_domain)
 
+    def test_when_calling_stack_last_item_codomain_is_checked(self):
+        morph = morphism(int, int)
+        identity = morph(lambda x: x)
+        tostr = morph(lambda x: "%s" %x)
+        inttostr = identity >> tostr
+        with self.assertRaises(TypeError) as context:
+            inttostr(1)
+        self.assertIn(' codomain', str(context.exception))
+        self.assertTrue(inttostr[0].check_domain)

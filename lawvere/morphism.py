@@ -3,6 +3,11 @@ from .curry import Curry
 from .stack import Stack, compose_with
 
 class MorphismStack(Stack):
+    def __call__(self, *args, **kwargs):
+        self[0].check_domain = True
+        self[-1].check_codomain = True
+        return Stack.__call__(self, *args, **kwargs)
+
     @classmethod
     def from_items(cls, item1, item2):
         item1 = cls.from_vartype(item1)
