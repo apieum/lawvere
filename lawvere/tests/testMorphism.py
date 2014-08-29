@@ -100,20 +100,20 @@ class MorphismTest(testCurry.CurryTest):
     def test_can_disable_domain_check(self):
         morph = morphism((int, int), str)
         add = morph(lambda x, y: x + y)
-        self.assertEqual('ab', add('a', 'b'))
-        add.check_domain = True
         with self.assertRaises(TypeError):
             add('a', 'b')
+        add.checking(False)
+        self.assertEqual('ab', add('a', 'b'))
 
 
     def test_can_disable_codomain_check(self):
         morph = morphism((int, int), str)
         add = morph(lambda x, y: x + y)
-
-        self.assertEqual(3, add(1, 2))
-        add.check_codomain = True
         with self.assertRaises(TypeError):
             add(1, 2)
+
+        add.checking(False)
+        self.assertEqual(3, add(1, 2))
 
     def test_when_calling_stack_first_item_domain_is_checked(self):
         morph = morphism((int, int), int)

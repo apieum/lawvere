@@ -3,19 +3,27 @@ from .curry import Curry
 from .stack import Stack, compose_with
 
 class MorphismStack(Stack):
-    def checks(self, check=True):
+    def __new__(cls, values=tuple()):
+        self = tuple.__new__(cls, values)
+        self.checking(False)
+        return self
+
+    def checking(self, value=False):
+        tuple(map(lambda item: item.checking(False), self))
+
+    def iochecks(self, check=True):
         self[0].check_domain = check
         self[-1].check_codomain = check
 
     def __call__(self, *args, **kwargs):
-        self.checks(True)
+        self.iochecks(True)
         try:
             result = Stack.__call__(self, *args, **kwargs)
         except:
-            self.checks(False)
+            self.iochecks(False)
             raise
         else:
-            self.checks(False)
+            self.iochecks(False)
             return result
 
     @property
@@ -34,13 +42,20 @@ class MorphismStack(Stack):
     def __addstacks__(self, stack1, stack2):
         if not stack2.composable_with(stack1):
             raise TypeError('Cannot compose %s with %s' %(stack1.return_infos, stack2.args_infos))
+        stack1.checking(False)
+        stack2.checking(False)
         return Stack.__addstacks__(self, stack1, stack2)
 
 
 @compose_with(MorphismStack)
 class Morphism(Curry):
-    check_domain = False
-    check_codomain = False
+    check_domain = True
+    check_codomain = True
+
+    def checking(self, value=False):
+        self.check_domain = value
+        self.check_codomain = value
+
     @property
     def domain(self):
         return self.signature.args_annotation
