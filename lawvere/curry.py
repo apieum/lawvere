@@ -17,16 +17,18 @@ class Curry(object):
     def __annotations__(self):
         return self.signature.annotations
 
+    def with_default(self, *args, **kwargs):
+        return type(self)(self.func, self.signature.merge(*args, **kwargs))
+
     def __call__(self, *args, **kwargs):
         signature = self.signature.merge(*args, **kwargs)
         if signature.valid():
             return self.apply(signature)
 
-        return type(self)(self.func, signature=signature)
+        return type(self)(self.func, signature)
 
     def __eq__(self, other):
         return self.func == other.func and self.signature == other.signature
-
 
     def apply(self, signature):
         return self.func(**signature)
