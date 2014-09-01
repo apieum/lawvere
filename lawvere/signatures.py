@@ -5,7 +5,7 @@ __all__=['Undefined', 'signature_factory', 'use_signature', 'Signature', 'from_f
 Undefined = type('Undefined', (type, ), {})
 
 
-call = lambda self, wrapper: self.get(type(wrapper).__name__, Signature)
+call = lambda self, sigtype: self.get(sigtype, Signature)
 signature_factory = type('SignatureFactory', (dict, ), {'__call__': call})()
 
 def use_signature(signature):
@@ -15,8 +15,8 @@ def use_signature(signature):
     return set_signature
 
 
-def from_func(wrapper, func):
-    return signature_factory(wrapper).from_func(func)
+def from_func(sigtype, func):
+    return signature_factory(sigtype).from_func(func)
 
 typename = lambda item: type(item) == type and item.__name__ or item
 
