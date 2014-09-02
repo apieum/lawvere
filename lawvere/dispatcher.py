@@ -20,7 +20,7 @@ class DispatchResolver(list):
         if items_len > 1:
             return DispatchResolver(items, args, kwargs, self.name)
 
-        raise ValueError('Function "%s" not exists for parameters: (%s)' % (self.name, self.parameters_str(args, kwargs)))
+        raise TypeError('No function "%s" with signature allowing: (%s)' % (self.name, self.parameters_str(args, kwargs)))
 
     def parameters_str(self, args, kwargs):
         parameters = list()

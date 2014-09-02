@@ -42,7 +42,7 @@ class DocExamplesTest(TestCase):
         type_checked = False
         try:
             add('a', 'b') == 'ab'
-        except ValueError:
+        except TypeError:
             type_checked = True
 
         assert type_checked, 'add should not exists for str types'

@@ -19,10 +19,10 @@ class DispatchResolverTest(TestCase):
         self.dispatch(item)(expected)
         item.accept.assert_called_once_with((expected, ), {})
 
-    def test_it_raises_ValueError_if_accept_is_false_for_all_items(self):
+    def test_it_raises_TypeError_if_accept_is_false_for_all_items(self):
         expected = 'expected'
         item = self.item(False)
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(TypeError):
             self.dispatch(item)(expected)
 
     def test_it_call_item_if_one_found(self):
