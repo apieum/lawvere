@@ -4,7 +4,7 @@ from unittest import TestCase
 
 class DocExamplesTest(TestCase):
     def test_example1_quick_start(self):
-        from lawvere import arrow, typedef
+        from lawvere import arrow
 
         # explicit use of keywords only for meaning exposal
         @arrow(domain=(int, int), codomain=int)
@@ -46,6 +46,7 @@ class DocExamplesTest(TestCase):
             type_checked = True
 
         assert type_checked, 'add should not exists for str types'
+
 
         # dispatch
         @add.register((str, str), str)
