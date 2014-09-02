@@ -8,9 +8,9 @@ class MultipleWrap(object):
         self.wrappers = wrappers
 
     def __call__(self, *args, **kwargs):
-        try:
+        if self.factory.accept(*args, **kwargs):
             return self.wrap(self.factory(*args, **kwargs))
-        except ValueError:
+        else:
             return self.apply(*args, **kwargs)
 
     def wrap(self, wrapper):
@@ -22,17 +22,22 @@ class MultipleWrap(object):
         return args[0]
 
 
-def factory(domain=Default, codomain=Default):
-    if type(domain) == type:
-        domain = (domain, )
+class Factory(object):
+    def __init__(self, domain=Default, codomain=Default):
+        self.domain = domain
+        self.codomain = codomain
 
-    if callable(domain):
-        raise ValueError("Domain callable")
+    def __call__(self, func):
+        return annotate(func, self.domain, self.codomain)
 
-    return typedef(domain, codomain)
+    @classmethod
+    def accept(cls, domain=Default, codomain=Default):
+        return type(domain) == type or not callable(domain)
 
 
 def annotate(func, domain, codomain=Default):
+    if not isinstance(domain, tuple):
+        domain = (domain, )
     varnames = getattr(func.__code__, 'co_varnames', tuple())
     annotations = getattr(func, '__annotations__', {})
     annotations.update(zip(varnames, domain))
@@ -44,4 +49,4 @@ def annotate(func, domain, codomain=Default):
 def typedef(domain, codomain=Default):
     return lambda func: annotate(func, domain, codomain)
 
-Arrow = MultipleWrap(factory)
+Arrow = MultipleWrap(Factory)
