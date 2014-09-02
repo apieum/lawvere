@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
 from mock import Mock
-from lawvere.dispatcher import dispatch, FuncDispatch, DispatchResolver
+from lawvere.dispatcher import dispatcher, DispatchResolver
 
 
 class DispatchTest(TestCase):
     def test_it_is_callable_and_returns_a_func_with_register(self):
-        given = dispatch(lambda func: func)
+        given = dispatcher(lambda func: func)
         self.assertTrue(callable(given))
         self.assertTrue(hasattr(given(lambda: None), 'register'))
 
-class FuncDispatchTest(TestCase):
-    def test_it_registers_wrapper_results(self):
-        given = self.dispatch("expected 0", wrapper=lambda func: "got %s" %func)
-        self.assertEqual("got expected 0", given[0])
-        given.register("expected 1")
-        self.assertEqual("got expected 1", given[1])
+
+class DispatchResolverTest(TestCase):
 
     def test_it_call_wrapped_item_accept_method(self):
         expected = 'expected'
@@ -23,7 +19,7 @@ class FuncDispatchTest(TestCase):
         self.dispatch(item)(expected)
         item.accept.assert_called_once_with((expected, ), {})
 
-    def test_it_call_raise_error_if_accept_is_false_for_all_items(self):
+    def test_it_raises_ValueError_if_accept_is_false_for_all_items(self):
         expected = 'expected'
         item = self.item(False)
         with self.assertRaises(ValueError) as context:
@@ -31,9 +27,11 @@ class FuncDispatchTest(TestCase):
 
     def test_it_call_item_if_one_found(self):
         expected = 'expected'
-        item = self.item(True)
-        self.dispatch(item)(expected)
-        item.assert_called_once_with(expected)
+        item1 = self.item(False)
+        item2 = self.item(True)
+        self.dispatch(item1, item2)(expected)
+        self.assertFalse(item1.called)
+        item2.assert_called_once_with(expected)
 
     def test_it_returns_DispatchResolver_if_more_than_one_item_found(self):
         expected = 'expected'
@@ -49,11 +47,7 @@ class FuncDispatchTest(TestCase):
         item.accept.return_value = accept
         return item
 
-    def dispatch(self, item, *args, **kwargs):
-        wrapper = kwargs.get('wrapper', lambda func: func)
-        func = FuncDispatch(item, wrapper)
-        for item in args:
-            func.register(item)
-        return func
+    def dispatch(self, *items):
+        return DispatchResolver(items)
 
 

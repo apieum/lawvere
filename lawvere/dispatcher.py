@@ -1,34 +1,14 @@
 # -*- coding: utf-8 -*-
-
-def dispatch(wrapper):
-    def dispatch(func):
-        func = FuncDispatch(func, wrapper)
-        setattr(func[0], 'register', func.register)
-        return func[0]
-    return dispatch
-
-
-class FuncDispatch(list):
-    def __init__(self, func, wrapper):
-        self.wrapper = wrapper
-        self.func_ids = tuple()
-        self.register(func)
-
-    def __call__(self, *args, **kwargs):
-        return DispatchResolver(self, args, kwargs)()
-
-    def register(self, func):
-        if id(func) not in self.func_ids:
-            self.func_ids+= (id(func), )
-            self.append(self.wrapper(func))
-        return self
+from .arrow import Arrow
 
 
 class DispatchResolver(list):
-    def __init__(self, items, args, kwargs):
+    wrap = Arrow
+    def __init__(self, items, args=tuple(), kwargs=dict(), name='Dispatcher'):
         list.__init__(self, items)
         self.args = args
         self.kwargs = kwargs
+        self.name = name
 
     def __call__(self, *args, **kwargs):
         args = self.args + args
@@ -38,7 +18,37 @@ class DispatchResolver(list):
         if  items_len == 1:
             return items[0](*args, **kwargs)
         if items_len > 1:
-            return DispatchResolver(items, args, kwargs)
+            return DispatchResolver(items, args, kwargs, self.name)
 
-        raise ValueError('Given args have no corresponding function')
+        raise ValueError('Function "%s" not exists for parameters: (%s)' % (self.name, self.parameters_str(args, kwargs)))
+
+    def parameters_str(self, args, kwargs):
+        parameters = list()
+        if len(args) == 1:
+            parameters = [str(args)[1:-2], ]
+        else:
+            parameters = str(args)[1:-1].split(', ')
+        parameters.extend(str(kwargs)[1:-1].split(', '))
+        return ', '.join(parameters).replace(': ', '=')
+
+    def append(self, item):
+        list.append(self, item)
+        return item
+
+    def register(self, *args, **kwargs):
+        result = self.wrap(*args, **kwargs)
+        if isinstance(result, type(self.wrap)):
+            return result.append(self.append)
+        return self.append(result)
+
+def dispatcher(wrapper):
+    wrapper = Arrow.wrap(wrapper)
+    resolver = type('Dispatcher', (DispatchResolver, ), {'wrap': wrapper})
+    def dispatch(*args, **kwargs):
+        dispatcher = resolver(list())
+        result = dispatcher.register(*args, **kwargs)
+        if isinstance(result, type(dispatcher.wrap)):
+            return result.append(lambda *args: dispatcher)
+        return dispatcher
+    return dispatch
 

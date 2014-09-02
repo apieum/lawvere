@@ -1,9 +1,9 @@
 from .morphism import Morphism
 from .curry import Curry
 from .arrow import Arrow, typedef
-from .dispatcher import dispatch
+from .dispatcher import dispatcher
 from .stack import composable, compose_with, compose_with_self
 
 morphism = Arrow.wrap(Morphism)
-arrow = Arrow.wrap(dispatch(Morphism))
-curry = dispatch(Curry)
+arrow = dispatcher(Morphism)
+curry = dispatcher(Curry)
