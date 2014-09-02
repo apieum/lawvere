@@ -1,10 +1,21 @@
 # -*- coding: utf-8 -*-
 from .arrow import Arrow
 
+def parameters_str(args, kwargs):
+    parameters = list()
+    if len(args) == 1:
+        parameters = [str(args)[1:-2], ]
+    else:
+        parameters = str(args)[1:-1].split(', ')
+    if len(kwargs) > 0:
+        kwargs = zip(kwargs.keys(), str(kwargs.values())[1:-1].split(', '))
+        parameters.extend(('%s=%s' %(name, value) for name, value in kwargs))
+    return ', '.join(parameters)
+
 
 class Dispatcher(list):
     wrap = Arrow
-    def __init__(self, items=list(), args=tuple(), kwargs=dict(), name='Dispatcher'):
+    def __init__(self, items, args=tuple(), kwargs=dict(), name='Dispatcher'):
         list.__init__(self, items)
         self.args = args
         self.kwargs = kwargs
@@ -20,18 +31,7 @@ class Dispatcher(list):
         if items_len > 1:
             return type(self)(items, args, kwargs, self.__name__)
 
-        raise TypeError('"%s" signature don\'t allow (%s) as parameters' % (self.__name__, self.parameters_str(args, kwargs)))
-
-    def parameters_str(self, args, kwargs):
-        parameters = list()
-        if len(args) == 1:
-            parameters = [str(args)[1:-2], ]
-        else:
-            parameters = str(args)[1:-1].split(', ')
-        if len(kwargs) > 0:
-            kwargs = zip(kwargs.keys(), str(kwargs.values())[1:-1].split(', '))
-            parameters.extend(('%s=%s' %(name, value) for name, value in kwargs))
-        return ', '.join(parameters)
+        raise TypeError('"%s" signature don\'t allow (%s) as parameters' % (self.__name__, parameters_str(args, kwargs)))
 
     def append(self, item):
         list.append(self, item)
@@ -44,17 +44,18 @@ class Dispatcher(list):
         return self.append(result)
 
     @classmethod
-    def build(cls, *args, **kwargs):
+    def dispatch(cls, *args, **kwargs):
         result = cls.wrap(*args, **kwargs)
         if isinstance(result, type(cls.wrap)):
-            return result.append(cls.dispatch)
+            return result.append(cls.build)
 
-        return cls.dispatch(result)
+        return cls.build(result)
 
     @classmethod
-    def dispatch(cls, func):
+    def build(cls, func):
         return cls([func, ], name=getattr(func, '__name__', cls.__name__))
 
 def dispatcher(wrapper):
-    return type('Dispatcher', (Dispatcher, ), {'wrap': Arrow.wrap(wrapper)}).build
+    return type('Dispatcher', (Dispatcher, ), {'wrap': Arrow.wrap(wrapper)}).dispatch
 
+dispatch = Dispatcher.dispatch

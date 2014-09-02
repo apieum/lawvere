@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
 from mock import Mock
-from lawvere.dispatcher import dispatcher, Dispatcher
-
-
-class DispatchTest(TestCase):
-    def test_it_is_callable_and_returns_a_func_with_register(self):
-        given = dispatcher(lambda func: func)
-        self.assertTrue(callable(given))
-        self.assertTrue(hasattr(given(lambda: None), 'register'))
+from lawvere.dispatcher import Dispatcher
 
 
 class DispatcherTest(TestCase):
+    def test_it_is_callable_and_returns_a_func_with_register(self):
+        given = self.dispatch(lambda func: func)
+        self.assertTrue(callable(given))
+        self.assertTrue(hasattr(given, 'register'))
 
     def test_it_call_wrapped_item_accept_method(self):
         expected = 'expected'
@@ -41,6 +38,7 @@ class DispatcherTest(TestCase):
         result = self.dispatch(item1, item2, item3)(expected)
         self.assertIsInstance(result, Dispatcher)
         self.assertEqual([item1, item3], list(result))
+
 
     def item(self, accept=True, returns='expected'):
         item = Mock(return_value=returns)
