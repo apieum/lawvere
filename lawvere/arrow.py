@@ -2,8 +2,37 @@
 from .curry import Curry
 Default = type('Default', (tuple, ), {})()
 
-@Curry
-def annotate(domain, codomain, func):
+class MultipleWrap(object):
+    def __init__(self, factory, wrappers=tuple()):
+        self.factory = factory
+        self.wrappers = wrappers
+
+    def __call__(self, *args, **kwargs):
+        try:
+            return self.wrap(self.factory(*args, **kwargs))
+        except ValueError:
+            return self.apply(*args, **kwargs)
+
+    def wrap(self, wrapper):
+        return type(self)(self.factory, (wrapper, ) + self.wrappers)
+
+    def apply(self, *args, **kwargs):
+        for wrapper in self.wrappers:
+            args, kwargs = (wrapper(*args, **kwargs), ), {}
+        return args[0]
+
+
+def factory(domain=Default, codomain=Default):
+    if type(domain) == type:
+        domain = (domain, )
+
+    if callable(domain):
+        raise ValueError("Domain callable")
+
+    return typedef(domain, codomain)
+
+
+def annotate(func, domain, codomain=Default):
     varnames = getattr(func.__code__, 'co_varnames', tuple())
     annotations = getattr(func, '__annotations__', {})
     annotations.update(zip(varnames, domain))
@@ -12,19 +41,7 @@ def annotate(domain, codomain, func):
     setattr(func, '__annotations__', annotations)
     return func
 
+def typedef(domain, codomain=Default):
+    return lambda func: annotate(func, domain, codomain)
 
-@Curry
-def Arrow(domain, codomain=Default, func_type=lambda func: func):
-    if type(domain) == type:
-        domain = (domain, )
-
-    if callable(domain):
-        return func_type(domain)
-
-    return lambda func: func_type(annotate(domain, codomain)(func))
-
-
-
-
-def ArrowType(cls):
-    return Arrow(func_type=cls)
+Arrow = MultipleWrap(factory)
