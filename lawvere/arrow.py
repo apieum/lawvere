@@ -16,6 +16,9 @@ class MultipleWrap(object):
     def wrap(self, wrapper):
         return type(self)(self.factory, (wrapper, ) + self.wrappers)
 
+    def append(self, wrapper):
+        return type(self)(self.factory, self.wrappers + (wrapper, ))
+
     def apply(self, *args, **kwargs):
         for wrapper in self.wrappers:
             args, kwargs = (wrapper(*args, **kwargs), ), {}
