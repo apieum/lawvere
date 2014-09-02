@@ -94,6 +94,8 @@ class Signature(OrderedDict):
 
     @classmethod
     def from_func(cls, func):
+        if hasattr(func, 'signature'):
+            return func.signature.__copy__()
         defaults = func.__defaults__ or tuple()
         argcount = getattr(func.__code__, 'co_argcount') - len(defaults)
         varnames = getattr(func.__code__, 'co_varnames')
