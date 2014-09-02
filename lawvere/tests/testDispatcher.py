@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
 from mock import Mock
-from lawvere.dispatcher import dispatcher, DispatchResolver
+from lawvere.dispatcher import dispatcher, Dispatcher
 
 
 class DispatchTest(TestCase):
@@ -11,7 +11,7 @@ class DispatchTest(TestCase):
         self.assertTrue(hasattr(given(lambda: None), 'register'))
 
 
-class DispatchResolverTest(TestCase):
+class DispatcherTest(TestCase):
 
     def test_it_call_wrapped_item_accept_method(self):
         expected = 'expected'
@@ -33,13 +33,13 @@ class DispatchResolverTest(TestCase):
         self.assertFalse(item1.called)
         item2.assert_called_once_with(expected)
 
-    def test_it_returns_DispatchResolver_if_more_than_one_item_found(self):
+    def test_it_returns_Dispatcher_if_more_than_one_item_found(self):
         expected = 'expected'
         item1 = self.item(True)
         item2 = self.item(False)
         item3 = self.item(True)
         result = self.dispatch(item1, item2, item3)(expected)
-        self.assertIsInstance(result, DispatchResolver)
+        self.assertIsInstance(result, Dispatcher)
         self.assertEqual([item1, item3], list(result))
 
     def item(self, accept=True, returns='expected'):
@@ -48,6 +48,6 @@ class DispatchResolverTest(TestCase):
         return item
 
     def dispatch(self, *items):
-        return DispatchResolver(items)
+        return Dispatcher(items)
 
 
