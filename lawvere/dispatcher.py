@@ -13,35 +13,49 @@ def parameters_str(args, kwargs):
     return ', '.join(parameters)
 
 
-class Dispatcher(list):
+class Dispatcher(object):
     wrap = Arrow
-    def __init__(self, items, args=tuple(), kwargs=dict(), name='Dispatcher'):
-        list.__init__(self, items)
+    def __init__(self, funcs, args=tuple(), kwargs=dict()):
+        self.funcs = funcs
         self.args = args
         self.kwargs = kwargs
-        self.__name__ = name
 
     def __call__(self, *args, **kwargs):
         args = self.args + args
         kwargs.update(self.kwargs)
-        items = tuple(filter(lambda item: item.accept(args, kwargs), self))
+        items = tuple(filter(lambda item: item.accept(args, kwargs), self.funcs))
         items_len = len(items)
         if  items_len == 1:
             return items[0](*args, **kwargs)
         if items_len > 1:
-            return type(self)(items, args, kwargs, self.__name__)
+            return type(self)(items, args, kwargs)
 
-        raise TypeError('"%s" signature don\'t allow (%s) as parameters' % (self.__name__, parameters_str(args, kwargs)))
+        raise TypeError('"%s" signature doesn\'t allow (%s) as parameters' % (self.__name__, parameters_str(args, kwargs)))
 
-    def append(self, item):
-        list.append(self, item)
-        return item
+    @property
+    def __name__(self):
+        return getattr(self.funcs[0], '__name__', type(self).__name__)
+
+    def __iter__(self):
+        return iter(self.funcs)
+
+    def __getattr__(self, name):
+        if name in ('register', '__call__'):
+            return self.__dict__[name]
+        return getattr(self.funcs[0],  name, self.__dict__.get(name))
+
+    def __lshift__(self, other):
+        return self.funcs[0].__lshift__(other)
+
+    def __rshift__(self, other):
+        return self.funcs[0].__rshift__(other)
 
     def register(self, *args, **kwargs):
+        append = lambda item: self.funcs.append(item) or item
         result = self.wrap(*args, **kwargs)
         if isinstance(result, type(self.wrap)):
-            return result.append(self.append)
-        return self.append(result)
+            return result.append(append)
+        return append(result)
 
     @classmethod
     def dispatch(cls, *args, **kwargs):
@@ -53,7 +67,7 @@ class Dispatcher(list):
 
     @classmethod
     def build(cls, func):
-        return cls([func, ], name=getattr(func, '__name__', cls.__name__))
+        return cls([func, ])
 
 def dispatcher(wrapper):
     return type('Dispatcher', (Dispatcher, ), {'wrap': Arrow.wrap(wrapper)}).dispatch
