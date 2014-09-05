@@ -1,4 +1,4 @@
-include README.rst
+include *.rst
 include LICENCE
 include *.txt
 include *.py
