@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
 
+from sys import version_info
+if version_info >= (3, ):
+    from .doc3 import DocExamples3Test
 
 class DocExamplesTest(TestCase):
     def test_example1_quick_start(self):
         from lawvere import arrow
 
-        # explicit use of keywords only for meaning exposal
-        @arrow(domain=(int, int), codomain=int)
+        # first argument is a tuple of types called "domain" (args type)
+        # second argument is called "codomain" (return type)
+        @arrow((int, int), int)
         def add(x, y):
             return x + y
 
@@ -15,7 +19,7 @@ class DocExamplesTest(TestCase):
         add2 = add(2)
 
         assert add2(3) == 5
-        assert add2(3) != 4, 'obviously: 2+3 != 4'
+        assert add(1)(2) == 3 # successive calls
 
         # composition (pipe):
         # pass the result of first function to second
@@ -48,13 +52,35 @@ class DocExamplesTest(TestCase):
         assert type_checked, 'add should not exists for str types'
 
 
-        # dispatch
+        # dispatch register
+        # concat inherit arrow properties
         @add.register((str, str), str)
         def concat(x, y):
-            return "%s%s" %(x, y)
+            return "%s %s" %(x, y)
 
-        assert concat('a', 'b') == 'ab'
-        assert add('a', 'b') == 'ab'
+        # can still call/curry... concat
+        assert concat('a')('b') == 'a b'
+        # add with str call concat
+        assert add('a') == concat('a')
+
+        # Concat is only defined for str
+        type_checked = False
+        try:
+            assert concat(1, 2) == 3
+        except TypeError:
+            type_checked = True
+
+        assert type_checked, 'concat should not exists for int types'
+
+        # Type Checking when composing:
+        try:
+            add >> concat(y='b')
+        except TypeError as exc:
+            message = str(exc)
+        # hope message is clear :)
+        assert message == "Cannot compose add -> int with concat(x:str=Undefined, y:str=b)"
+        # if composition was circle message would be:
+        # ... concat -> str with add(x:int=Undefined, y:int=Undefined)
 
 
 
