@@ -65,7 +65,7 @@ class Morphism(Curry):
 
     @property
     def args_infos(self):
-        return '%s%s' %(self.__name__, self.signature.args_infos)
+        return '%s(%s)' %(self.__name__, self.signature.args_infos)
 
     @property
     def return_infos(self):
