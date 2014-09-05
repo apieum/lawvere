@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from .curry import Curry
 Default = type('Default', (tuple, ), {})()
 
 class MultipleWrap(object):
@@ -38,7 +37,7 @@ class Factory(object):
         return type(domain) == type or not callable(domain)
 
 
-def annotate(func, domain, codomain=Default):
+def annotate(func, domain=Default, codomain=Default):
     if not isinstance(domain, tuple):
         domain = (domain, )
     varnames = getattr(func.__code__, 'co_varnames', tuple())
@@ -49,7 +48,8 @@ def annotate(func, domain, codomain=Default):
     setattr(func, '__annotations__', annotations)
     return func
 
-def typedef(domain, codomain=Default):
+def typedef(domain=Default, codomain=Default):
     return lambda func: annotate(func, domain, codomain)
 
-Arrow = MultipleWrap(Factory)
+typed = MultipleWrap(Factory)
+typify = typed.wrap

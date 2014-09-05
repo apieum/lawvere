@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .arrow import Arrow
+from .typify import typify, typed
 
 def parameters_str(args, kwargs):
     parameters = list()
@@ -14,7 +14,7 @@ def parameters_str(args, kwargs):
 
 
 class Dispatcher(object):
-    wrap = Arrow
+    wrap = typed
     def __init__(self, funcs, args=tuple(), kwargs=dict()):
         self.funcs = funcs
         self.args = args
@@ -70,6 +70,6 @@ class Dispatcher(object):
         return cls([func, ])
 
 def dispatcher(wrapper):
-    return type('Dispatcher', (Dispatcher, ), {'wrap': Arrow.wrap(wrapper)}).dispatch
+    return type('Dispatcher', (Dispatcher, ), {'wrap': typify(wrapper)}).dispatch
 
 dispatch = Dispatcher.dispatch
