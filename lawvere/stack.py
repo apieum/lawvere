@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+def pipe(self, other):
+    return self.__stacktype__.from_items(self, other)
+
+def circle(self, other):
+    return pipe(other, self)
+
 def compose_with(stack_cls):
     def composable(cls):
         if not callable(cls): raise TypeError("Composables must be callable")
@@ -8,12 +14,6 @@ def compose_with(stack_cls):
 
         if is_composable(cls):
             return type(cls.__name__, (cls, ), {'__stacktype__': stack_cls})
-
-        def pipe(self, other):
-            return self.__stacktype__.from_items(self, other)
-
-        def circle(self, other):
-            return pipe(other, self)
 
         attributes = {
             '__stacktype__': stack_cls,
